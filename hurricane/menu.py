@@ -1,0 +1,93 @@
+import data.colors as colors
+
+class menu(object):
+  def __init__(self, string, layout, dslayout=None):
+    self.menuString = string
+    self.menuLayout = layout
+
+    if dslayout == None:
+      self.displayLayout = layout
+    else:
+      self.displayLayout = dslayout
+    
+    self.cords = [0, 0]
+    self.value = None
+
+    self.colors = colors.getcolors()
+
+  def isin(self, x, y):
+    try:
+      if x < 0:
+        return False
+      elif y < 0:
+        return False
+      elif self.menuLayout[x][y] == "":
+        return False
+      else:
+        return True
+    except IndexError:
+      return False
+
+  def find(self):
+    for x in range(len(self.displayLayout)):
+      column = self.displayLayout[x]
+      for y in range(len(column)):
+        value = column[y]
+        try:
+          if value[x][y] != "":
+            self.cords = [x, y]
+            return # return on first entry
+        except IndexError:
+          pass
+  
+  def up(self):
+    self.cords[1] -= 1
+    if not self.isin(self.cords[0], self.cords[1]):
+      self.cords[1] += 1
+
+  def down(self):
+    self.cords[1] += 1
+    if not self.isin(self.cords[0], self.cords[1]):
+      self.cords[1] -= 1
+
+  def left(self):
+    self.cords[0] -= 1
+    if not self.isin(self.cords[0], self.cords[1]):
+      self.cords[0] += 1
+
+  def right(self):
+    self.cords[0] += 1
+    if not self.isin(self.cords[0], self.cords[1]):
+      self.cords[0] -= 1
+
+  def enter(self):
+    print("")
+    self.value = self.menuLayout[self.cords[0]][self.cords[1]]
+
+  def registerkey(self, key, keylayout={"w":"up", "s":"down", "a":"left", "d":"right", "":"enter"}):
+    if key in keylayout:
+      if keylayout[key] == "up":
+        self.up()
+      elif keylayout[key] == "down":
+        self.down()
+      elif keylayout[key] == "left":
+        self.left()
+      elif keylayout[key] == "right":
+        self.right()
+      elif keylayout[key] == "enter":
+        self.enter()
+  
+  def get(self):
+    returnmenu = self.menuString
+    
+    for x in range(len(self.displayLayout)):
+      column = self.displayLayout[x]
+      for y in range(len(column)):
+        value = column[y]
+        replacevalue = self.menuLayout[x][y]
+        if self.cords[0] == x and self.cords[1] == y:
+          returnmenu = returnmenu.replace("{" + replacevalue + "}", self.colors["background"] + value + self.colors["reset"])
+        else:
+          returnmenu = returnmenu.replace("{" + replacevalue + "}", value)
+    
+    return returnmenu

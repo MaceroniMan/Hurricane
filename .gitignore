@@ -1,0 +1,16 @@
+/dev/
+**/__pycache__
+.breakpoints
+.pip_output
+poetry.lock
+pyproject.toml
+main.py
+main.poml
+main
+src
+.replit
+/venv/
+replit.nix
+configfile.config
+ref.py
+hurricane/saves/*
