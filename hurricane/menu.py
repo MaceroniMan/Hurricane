@@ -28,15 +28,16 @@ class menu(object):
     except IndexError:
       return False
 
-  def find(self):
+  def find(self, name=None):
     for x in range(len(self.displayLayout)):
       column = self.displayLayout[x]
       for y in range(len(column)):
         value = column[y]
         try:
-          if value[x][y] != "":
-            self.cords = [x, y]
-            return # return on first entry
+          if value != "":
+            if value == name or name == None:
+              self.cords = [x, y]
+              return # return on first entry
         except IndexError:
           pass
   

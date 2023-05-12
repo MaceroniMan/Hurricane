@@ -9,7 +9,9 @@ def splitlist(old):
   return new, reflist
 
 def parse(command, player, npcs):
-  actionlist = list(command.lower().split(" "))
+  command = command.lower()
+  command = command.replace("?", "")
+  actionlist = list(command.split(" "))
 
   verb = None
   validsubjects = []
@@ -39,7 +41,7 @@ def parse(command, player, npcs):
     elif word in ['inventory', 'bag', 'backpack']:
       return ["inventory"]
       
-    elif word in ["unlock", "open"]:
+    elif word in ["unlock", "open", "look", "inspect"]:
       return ["unlock"]
 
     elif word in ["store"]:
@@ -53,9 +55,6 @@ def parse(command, player, npcs):
 
     elif word in ["travel", "stable", "stables"]:
       return ["stable"]
-
-    elif word in ["look", "inspect"]:
-      return ["look"]
 
     elif word in ['exit', 'quit', 'leave']:
       return ["EXT"]

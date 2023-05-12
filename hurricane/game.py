@@ -6,6 +6,7 @@ import savegame
 import data.htf as htf
 import data.tutorial as tutorial
 
+import os
 import sys
 import json
 import copy
@@ -26,16 +27,15 @@ def say(player, saylist):
 
 def unlockchest(player, room, containers, items):
   utils.clear()
-  if "container" in room:
-    if utils.parsecondition(room["container"]["condition"], player):
-      if player["location"] in player["containers"]:
-        utils.typing("The chest is already unlocked", player)
-        wait()
-      else:
-        say(player, room["container"]["say"])
-        player["containers"][player["location"]] = copy.deepcopy(containers[player["location"]])
-        
-      inventory(player, room, containers, items)
+  if utils.parsecondition(room["container"]["condition"], player):
+    if not player["location"] in player["containers"]:
+      say(player, room["container"]["say"])
+      player["containers"][player["location"]] = copy.deepcopy(containers[player["location"]])
+    else: # below may want to be taken out
+      utils.typing("The chest is already unlocked", player)
+      wait()
+      
+    inventory(player, room, containers, items)
 
 def itemproperties(item, items, player):
   itemprop = items[item]
@@ -63,18 +63,21 @@ def storemenu(player, items, storedict):
   while not done:
     maxinvlength = 9
     for i in player["inventory"]:
-      if len(i) > maxinvlength:
-        maxinvlength = len(i)
+      nme = items[i]["name"]
+      if len(nme) > maxinvlength:
+        maxinvlength = len(nme)
     
     maxstolength = 5
     for i in storedict["items"]:
-      if len(i) > maxstolength:
-        maxstolength = len(i)
+      nme = items[i]["name"]
+      if len(nme) > maxstolength:
+        maxstolength = len(nme)
 
     maxbuylength = 7
     for i in buyback:
-      if len(i) > maxbuylength:
-        maxbuylength = len(i)
+      nme = items[i]["name"]
+      if len(nme) > maxbuylength:
+        maxbuylength = len(nme)
 
     inventorytitleminus = maxinvlength - 9
     storetitleminus = maxstolength - 5
@@ -231,14 +234,16 @@ def inventory(player, room, containers, items):
   while not done:
     maxinvlength = 9
     for i in player["inventory"]:
-      if len(i) > maxinvlength:
-        maxinvlength = len(i)
+      nme = items[i]["name"]
+      if len(nme) > maxinvlength:
+        maxinvlength = len(nme)
 
     maxgndlength = 6
     grounditems = copy.deepcopy(player["world"][player["location"]])
     for i in grounditems:
-      if len(i) > maxgndlength:
-        maxgndlength = len(i)
+      nme = items[i]["name"]
+      if len(nme) > maxgndlength:
+        maxgndlength = len(nme)
   
     maxbaglength = None
     currentcontainer = []
@@ -251,22 +256,23 @@ def inventory(player, room, containers, items):
           maxbaglength = 5
           
           for i in currentcontainer:
-            if len(i) > maxbaglength:
-              maxbaglength = len(i)
+            nme = items[i]["name"]
+            if len(nme) > maxbaglength:
+              maxbaglength = len(nme)
 
           containertitleminus = maxbaglength - 5
-
-          if maxbaglength % 2 == 0:
+          
+          if containertitleminus % 2 != 0:
             maxbaglength += 1
-
-    inventorytitleminus = maxinvlength - 9
-    groundtitleminus = maxgndlength - 6
     
     if maxinvlength % 2 == 0:
       maxinvlength += 1
 
     if maxgndlength % 2 != 0:
       maxgndlength += 1
+
+    inventorytitleminus = maxinvlength - 9
+    groundtitleminus = maxgndlength - 6
     
     utils.clear()
   
@@ -296,7 +302,8 @@ def inventory(player, room, containers, items):
     
     for i in range(maxlength):
       if i < len(player["inventory"]):
-        extraspaces = maxinvlength-len(player["inventory"][i])
+        extraspaces = maxinvlength-len(items[player["inventory"][i]]["name"])
+        
         printstring += "| " + " "*(extraspaces) + "{inv$" + player["inventory"][i] + "$" + str(i) + "} |"
         dislist_inv.append(items[player["inventory"][i]]["name"])
         reglist_inv.append("inv$" + player["inventory"][i] + "$" + str(i))
@@ -304,7 +311,8 @@ def inventory(player, room, containers, items):
         printstring += "| " + " "*(maxinvlength) + " |"
 
       if i < len(currentcontainer):
-        extraspaces = maxbaglength-len(currentcontainer[i])
+        extraspaces = maxbaglength-len(items[currentcontainer[i]]["name"])
+        
         printstring += " " + " "*(extraspaces) + "{bag$" + currentcontainer[i] + "$" + str(i) + "} |"
         dislist_bag.append(items[currentcontainer[i]]["name"])
         reglist_bag.append("bag$" + currentcontainer[i] + "$" + str(i))
@@ -312,7 +320,8 @@ def inventory(player, room, containers, items):
         printstring += " " + " "*(maxbaglength) + " |"
 
       if i < len(grounditems):
-        extraspaces = maxgndlength-len(grounditems[i])
+        extraspaces = maxgndlength-len(items[grounditems[i]]["name"])
+
         printstring += " " + " "*(extraspaces) + "{gnd$" + grounditems[i] + "$" + str(i) + "} |"
         dislist_gnd.append(items[grounditems[i]]["name"])
         reglist_gnd.append("gnd$" + grounditems[i] + "$" + str(i))
@@ -358,7 +367,7 @@ def inventory(player, room, containers, items):
 
         currentoutputmenu = currentoutputmenu.replace("-inventory-", "-{inventory}-").replace("-chest-", "-{chest}-").replace("-ground-", "-{ground}-")
 
-        currentoutputmenu += "Where to move " + item[1] + "?"
+        currentoutputmenu += "Where to move " + items[item[1]]["name"] + "?"
 
         if maxbaglength != None:
           reglist = [["inventory"], ["chest"], ["ground"]]
@@ -367,7 +376,16 @@ def inventory(player, room, containers, items):
         
         moveMenu = menu.menu(currentoutputmenu, reglist)
 
-        moveMenu.find()
+        # autodefault menu to the current place
+        findelement = None
+        if item[0] == "gnd":
+          findelement = "ground"
+        elif item[0] == "bag":
+          findelement = "chest"
+        elif item[0] == "inv":
+          findelement = "inventory"
+        
+        moveMenu.find(findelement)
     
         while moveMenu.value == None:
           utils.clear()
@@ -404,22 +422,35 @@ def inventory(player, room, containers, items):
       itemproperties(item[1], items, player)
 
 def seequests(player, quests):
-  utils.clear()
-  print(" Quest List")
-  print("============")
+  donequests = ""
+  notquests = ""
+  
   if len(player["quests"]) > 0:
     for qid in player["quests"]:
-      if player["quests"][qid] == len(quests[qid]["points"])-1: # check if the quest is compleated
-        print(quests[qid]["name"] + ": " + quests[qid]["done"])
+      if player["quests"][qid] == len(quests[qid]["points"]): # check if the quest is compleated (1 past length of quest list)
+        donequests += wrapprint(quests[qid]["name"] + ": " + utils.replaceinstrings(quests[qid]["done"], player) + "\n\n", 70)
       else:
-        print(quests[qid]["name"] + ": " + quests[qid]["points"][player["quests"][qid]])
+        notquests += wrapprint(quests[qid]["name"] + ": " + utils.replaceinstrings(quests[qid]["points"][player["quests"][qid]], player) + "\n\n", 70)
   else:
-    print("No quests yet, go explore!")
+    notquests += "No quests yet, go explore!"
+
+  utils.clear()
+  print(" Current Quests")
+  print("================")
+  print(notquests, end="", flush=True)
+
+  if donequests != "":
+    print("")
+    print(" Compleated Quests")
+    print("===================")
+    print(donequests, end="", flush=True)
+  
   wait()
 
 def dialouge(npc, player, quests):
   dialougedict = npc[0]["dialouges"]
   talklocation = npc[1]
+  starttext = ""
 
   while True:
     utils.clear()
@@ -429,12 +460,23 @@ def dialouge(npc, player, quests):
       
     dialougecurrent = dialougedict[talklocation]
     beforetext = ""
+
+    if starttext != "":
+      beforetext += starttext + "\n\n"
     
     for person_index in range(len(dialougecurrent["dialouge"])):
+      utils.clear()
+      print(utils.replaceinstrings(beforetext, player), end="", flush=True)
+      
       person = dialougecurrent["dialouge"][person_index]
       print(person[0] + ": ", end="", flush=True)
-      utils.typing(person[1], player, skip=False)
-      beforetext += person[0] + ": " + person[1]
+      doneskip = utils.typing(person[1], player)
+      if doneskip:
+        utils.clear()
+        print(utils.replaceinstrings(beforetext, player), end="", flush=True)
+        print(person[0] + ": " + utils.replaceinstrings(person[1], player).replace("`", "\n"), end="", flush=True)
+      
+      beforetext += person[0] + ": " + person[1].replace("`", "\n") + "\n\n"
       if person_index+1 != len(dialougecurrent["dialouge"]):
         input()
       
@@ -448,7 +490,7 @@ def dialouge(npc, player, quests):
       utils.clear()
       if player["quests"][doext] == 0: # if the quest was just given
         utils.typing("Quest '" + quests[doext]["name"] + "' received", player, speed=.1)
-      elif player["quests"][doext] == len(quests[doext]["points"])-1: # if the quest was just compleated
+      elif player["quests"][doext] == len(quests[doext]["points"]): # if the quest was just compleated (1 past length of quest list)
         utils.typing("Quest '" + quests[doext]["name"] + "' compleated", player, speed=.1)
       else:
         utils.typing("Quest '" + quests[doext]["name"] + "' advanced", player, speed=.1)
@@ -469,7 +511,7 @@ def dialouge(npc, player, quests):
           optionlist[0].append(option[1]["goto"])
 
       beforetext = utils.replaceinstrings(beforetext, player).replace("`", "\n")
-      dialoueMenu = menu.menu(beforetext + "\n\n" + optionstring, optionlist, nicelist)
+      dialoueMenu = menu.menu(beforetext + optionstring, optionlist, nicelist)
     
       while dialoueMenu.value == None:
         utils.clear()
@@ -489,6 +531,9 @@ def startmenu():
   world = assets["world"]
   quests = assets["quests"]
   containers = assets["containers"]
+
+  if not os.path.exists("saves"):
+    os.makedirs("saves")
 
   action = None
   savegameresult = ""
@@ -559,13 +604,51 @@ use keys 'w' 'a' 's' and 'd' to navigate the menu
 
   game(savegameresult, items, npcs, world, quests, containers, [username, password])
 
+def wrapprint(text, charlength):
+  cnt = 0
+  newouttext = ""
+  
+  for currchar in text:
+    
+    if cnt == charlength:
+      if currchar == " ":
+        newouttext += "\n"
+        cnt = 0
+      else:
+        newouttext += currchar
+    else:
+      cnt += 1
+      newouttext += currchar
+
+  return newouttext
+
 def game(player, items, npcs, world, quests, containers, userdata):
+  lastlocation = ""
+
   while True:
     utils.clear()
     cr = world[player["location"]]
-    currentnpcs = utils.npcs(player, npcs)  
+
+    # this will let npcs stay there, but will cause unwanted side effects
+    # such as not being able to update the current player npcs
+    #if lastlocation != player["location"]:
+    currentnpcs = utils.npcs(player, npcs)
+
+    lastlocation = player["location"]
   
     player["moves"] += 1
+
+    if player["moves"] % 5 == 0:
+      savegame.save(userdata[0], userdata[1], player)
+
+    if "introtext" in cr:
+      say(player, cr["introtext"])
+
+    if "do" in cr:
+      for i in cr["do"]:
+        if utils.parsecondition(i[0], player):
+          utils.parsedo(i[1], player)
+          break
   
     if not player["location"] in player["world"]:
       player["world"][player["location"]] = []
@@ -575,21 +658,27 @@ def game(player, items, npcs, world, quests, containers, userdata):
     print(" " + cr["name"])
     print("="*(len(cr["name"])+2) + "\n")
 
-    print(cr["desc.long"], end=". ")
+    outtext = ""
+
+    outtext += cr["desc.long"] + ". "
 
     if "store" in cr:
-      print(cr["store"]["desc"], end=". ")
+      if utils.parsecondition(cr["store"]["condition"], player):
+        outtext += cr["store"]["desc"] + ". "
 
     if "stable" in cr:
       if not player["location"] in player["stables"]:
         player["stables"].append(player["location"])
-      print(cr["stable"], end=". ")
+      outtext += cr["stable"] + ". "
 
     if "container" in cr:
-      print(cr["container"]["desc"], end=". ")
+      outtext += cr["container"]["desc"] + ". "
 
     for a_npc in currentnpcs:
-      print(currentnpcs[a_npc][0]["observation"], end=". ")
+      for obps in currentnpcs[a_npc][0]["observation"]:
+        if utils.parsecondition(obps[0], player):
+          outtext += obps[1] + ". "
+          break
 
     grounditems = player["world"][player["location"]]
     preface = ""
@@ -608,9 +697,11 @@ def game(player, items, npcs, world, quests, containers, userdata):
       else:
         postface = ""
         
-      print(preface + items[grounditems[gitem]]["name"] + postface, end="")
+      outtext += preface + items[grounditems[gitem]]["name"] + postface
 
-    print("\n")
+    newouttext = wrapprint(utils.replaceinstrings(outtext, player), 70)
+        
+    print(newouttext + "\n")
   
     print("You can go:")
   
@@ -648,7 +739,11 @@ def game(player, items, npcs, world, quests, containers, userdata):
     elif command[0] == "inventory":
       inventory(player, cr, containers, items)
     elif command[0] == "unlock":
-      unlockchest(player, cr, containers, items)
+      if "container" in cr:
+        unlockchest(player, cr, containers, items)
+      else:
+        utils.typing("There is nothing to open here", player)
+        wait()
     elif command[0] == "talk":
       if command[1] == None:
         if len(currentnpcs) != 0:
@@ -670,21 +765,23 @@ def game(player, items, npcs, world, quests, containers, userdata):
       seequests(player, quests)
     elif command[0] == "stable":
       dostables(player, world)
-    elif command[0] == "look":
-      utils.typing(cr["desc.long"], player)
-      wait()
     elif command[0] == "store":
       if "store" in cr:
-        storedict = {
-          "pricemultiplier" : cr["store"]["multiplier"],
-          "items" : []
-        }
-        for i in cr["store"]["items"]:
-          if utils.parsecondition(i[0], player):
-            storedict["items"].append(i[1])
-        storemenu(player, items, storedict)
+        if utils.parsecondition(cr["store"]["condition"], player):
+          storedict = {
+            "pricemultiplier" : cr["store"]["multiplier"],
+            "items" : []
+          }
+          for i in cr["store"]["items"]:
+            if utils.parsecondition(i[0], player):
+              storedict["items"].append(i[1])
+          storemenu(player, items, storedict)
+        else:
+          utils.typing("The store seems to be closed", player)
+          wait()
       else:
-        print("there is not store here")
+        utils.typing("There is not store here", player)
         wait()
 
-startmenu()
+if __name__ == "__main__":
+  startmenu()

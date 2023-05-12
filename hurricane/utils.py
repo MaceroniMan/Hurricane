@@ -48,7 +48,7 @@ def typing(words, player, speed=0.03, skip=True):
       if (i):
         if sys.stdin.readline().strip() == '':
           print('\033[F'*inputs + words.replace('`', '\n'))
-          return
+          return True
     else:
       time.sleep(speed)
     if char == '`':
@@ -58,6 +58,7 @@ def typing(words, player, speed=0.03, skip=True):
       sys.stdout.write(char)
       sys.stdout.flush()
   print("")
+  return False
 
 # returns a list of the npcs in the current room
 """
@@ -65,15 +66,29 @@ def typing(words, player, speed=0.03, skip=True):
   "npc_name" : [npcdict, dialouge_start]
 }
 """
+
 def npcs(player, npcs):
   returnnpcs = {}
   for npc in npcs:
+    done = False
     for room in npcs[npc]:
+      roomvalue = None
       if room == player["location"]:
-        for condition in npcs[npc][room]["conditions"]:
+        if isinstance(npcs[npc][room], str):
+          roomvalue = npcs[npc][room]
+        else:
+          roomvalue = room
+      
+      if roomvalue != None:
+        for condition in npcs[npc][roomvalue]["conditions"]:
           if parsecondition(condition[0], player):
-            returnnpcs[npc] = [npcs[npc][room], condition[1]]
+            returnnpcs[npc] = [npcs[npc][roomvalue], condition[1]]
+            done = True
             break
+
+      if done:
+        break
+          
   return returnnpcs
   
 # returns the player and whether or not exit was in the value
