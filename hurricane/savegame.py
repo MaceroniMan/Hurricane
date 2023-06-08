@@ -1,7 +1,6 @@
-import data.htf as htf
+import hurricane.data.htf as htf
 import json
 import os
-import utils
 
 BASEPLAYER = {
   "name" : "", # the current player name
@@ -17,8 +16,15 @@ BASEPLAYER = {
   "recipes" : [] # a list of all the current crafting recipies
 }
 
+def setup():
+  cur_path = os.getcwd()
+  save_path = os.path.join(cur_path, "saves")
+  if not os.path.exists(save_path):
+    os.mkdir(save_path)
+  return save_path
+
 def load(username, password):
-  savepath = "saves/" + username
+  savepath = os.path.join(setup(), username)
   if os.path.exists(savepath):
     try:
       return json.loads(htf.decode(savepath, password))
@@ -28,21 +34,18 @@ def load(username, password):
     return "FILE"
 
 def create(username, password, overwrite=False):
-  savepath = "saves/" + username
+  savepath = os.path.join(setup(), username)
   if os.path.exists(savepath) and overwrite:
     if input("this saved game already exists, overwrite? [yes/no] ") != "yes":
       return "NA"
 
   newplayer = BASEPLAYER.copy()
 
-  utils.clear()
-  print(" Charecter Creation")
-  print("====================")
-  newplayer["name"] = input("charecter name? ")
+  newplayer["name"] = input("charecter name? ").title()
   
-  htf.encode(json.dumps(newplayer), password, "saves/" + username)
+  htf.encode(json.dumps(newplayer), password, savepath)
 
   return newplayer
 
 def save(username, password, player):
-  htf.encode(json.dumps(player), password, "saves/" + username)
+  htf.encode(json.dumps(player), password,  os.path.join(setup(), username))

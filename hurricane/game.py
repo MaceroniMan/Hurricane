@@ -1,19 +1,10 @@
-import menu
-import cmds
-import utils
-import savegame
+import hurricane.menu as menu
+import hurricane.cmds as cmds
+import hurricane.utils as utils
+import hurricane.savegame as savegame
 
-import data.htf as htf
-import data.tutorial as tutorial
-
-import os
-import sys
-import json
 import copy
-
 import math
-
-KEY = "hurricane"
 
 def wait():
   input("...")
@@ -447,6 +438,28 @@ def seequests(player, quests):
   
   wait()
 
+def wrapprint(text, charlength, checkchar="", wrapchar="\n"):
+  cnt = 0
+  newouttext = ""
+  
+  for currchar in text:
+    
+    if currchar == checkchar:
+      newouttext += currchar
+      cnt = 0
+      
+    elif cnt == charlength:
+      if currchar == " ":
+        newouttext += wrapchar
+        cnt = 0
+      else:
+        newouttext += currchar
+    else:
+      cnt += 1
+      newouttext += currchar
+
+  return newouttext
+
 def dialouge(npc, player, quests):
   dialougedict = npc[0]["dialouges"]
   talklocation = npc[1]
@@ -469,14 +482,15 @@ def dialouge(npc, player, quests):
       print(utils.replaceinstrings(beforetext, player), end="", flush=True)
       
       person = dialougecurrent["dialouge"][person_index]
-      print(person[0] + ": ", end="", flush=True)
-      doneskip = utils.typing(person[1], player)
+      text = wrapprint('  "' + person[1].replace("`", '"`  "') + '"', 70, "`", "\n   ")
+      print(person[0] + ": ", end="\n", flush=True)
+      doneskip = utils.typing(text, player)
       if doneskip:
         utils.clear()
         print(utils.replaceinstrings(beforetext, player), end="", flush=True)
-        print(person[0] + ": " + utils.replaceinstrings(person[1], player).replace("`", "\n"), end="", flush=True)
+        print(person[0] + ": \n" + utils.replaceinstrings(text, player).replace("`", "\n"), end="", flush=True)
       
-      beforetext += person[0] + ": " + person[1].replace("`", "\n") + "\n\n"
+      beforetext += person[0] + ": \n" + text.replace("`", "\n") + "\n\n"
       if person_index+1 != len(dialougecurrent["dialouge"]):
         input()
       
@@ -523,108 +537,8 @@ def dialouge(npc, player, quests):
 
     if talklocation == "exit":
       break # leave the menu
-  
-def startmenu():
-  assets = json.loads(htf.decode("data/assets.dat", KEY))
-  items = assets["items"]
-  npcs = assets["npcs"]
-  world = assets["world"]
-  quests = assets["quests"]
-  containers = assets["containers"]
-
-  if not os.path.exists("saves"):
-    os.makedirs("saves")
-
-  action = None
-  savegameresult = ""
-  while action == None:
-    menustr = """ Hurricane - Apple
-===================
-use keys 'w' 'a' 's' and 'd' to navigate the menu
-
-'{load}' ....... load a saved game
-'{start}' ...... start a new game
-'{tutorial}' ... start a short tutorial
-'{exit}' ....... exit the game"""
-    mainMenu = menu.menu(menustr, [["load", "start", "tutorial", "exit"]])
-    
-    while mainMenu.value == None:
-      utils.clear()
-      print(mainMenu.get())
-
-      mainMenu.registerkey(utils.getch(": "))
-    
-    menuinput = mainMenu.value
-    if menuinput == "load":
-      utils.clear()
-      print(" Load a Existing Saved Game")
-      print("============================")
-      username = input("saved game name: ")
-      password = input("password: ")
-      if username == "":
-        action = None
-        savegameresult = None
-      else:
-        savegameresult = savegame.load(username, password)
-        if savegameresult == "FILE":
-          print("that saved gamed does not exist")
-          wait()
-          action = None
-          savegameresult = None
-        elif savegameresult == "PASS":
-          print("incorrect password for saved game")
-          wait()
-          action = None
-          savegameresult = None
-        else:
-          action = "continue"
-    elif menuinput == "start":
-      utils.clear()
-      print(" Create a New Saved Game")
-      print("=========================")
-      username = input("saved game name: ")
-      password = input("password: ")
-      if username == "":
-        action = None
-        savegameresult = None
-      else:
-        savegameresult = savegame.create(username, password, overwrite=False)
-        if savegameresult == "NA":
-          action = None
-          savegameresult = None
-        else:
-          action = "continue"
-    elif menuinput == "tutorial":
-      tutorial.run()
-      action = None
-    elif menuinput == "exit":
-      sys.exit(0)
-    else:
-      action = None
-
-  game(savegameresult, items, npcs, world, quests, containers, [username, password])
-
-def wrapprint(text, charlength):
-  cnt = 0
-  newouttext = ""
-  
-  for currchar in text:
-    
-    if cnt == charlength:
-      if currchar == " ":
-        newouttext += "\n"
-        cnt = 0
-      else:
-        newouttext += currchar
-    else:
-      cnt += 1
-      newouttext += currchar
-
-  return newouttext
 
 def game(player, items, npcs, world, quests, containers, userdata):
-  lastlocation = ""
-
   while True:
     utils.clear()
     cr = world[player["location"]]
@@ -633,8 +547,6 @@ def game(player, items, npcs, world, quests, containers, userdata):
     # such as not being able to update the current player npcs
     #if lastlocation != player["location"]:
     currentnpcs = utils.npcs(player, npcs)
-
-    lastlocation = player["location"]
   
     player["moves"] += 1
 
@@ -782,6 +694,3 @@ def game(player, items, npcs, world, quests, containers, userdata):
       else:
         utils.typing("There is not store here", player)
         wait()
-
-if __name__ == "__main__":
-  startmenu()

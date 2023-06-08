@@ -1,4 +1,4 @@
-import data.colors as colors
+import hurricane.data.colors as colors
 
 class menu(object):
   def __init__(self, string, layout, dslayout=None):

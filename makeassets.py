@@ -1,7 +1,7 @@
 import hurricane.data.htf as htf
 import json
 
-KEY = "hurricane"
+KEY = "hurricane-0.1.0"
 
 # room key explinations:
 """
@@ -1617,7 +1617,7 @@ quests = {
     "done" : "You sucessfully found the Store Handle and returned it to B{Jodie}",
     "name" : "Missing Handle",
     "points" : [
-      "Find the G{Store Handle} and give it back to B{Jodie}"
+      "Find the 'G{Store Handle}' and give it back to B{Jodie}"
     ]
   }
 }
@@ -1666,7 +1666,7 @@ items = {
   },
   "store-cabinet-handle" : {
     "name" : "Store Cabinet Handle",
-    "desc" : "a old-style cabinet handle for the Camp Store",
+    "desc" : "a old-style cabinet handle for the G{Camp Store}",
     "value" : 10,
     "craft" : None
   },

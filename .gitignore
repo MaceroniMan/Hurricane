@@ -13,5 +13,8 @@ src
 replit.nix
 configfile.config
 ref.py
-hurricane/saves/*
 edit.xml
+saves/*
+build
+dist
+Hurricane.egg-info

@@ -1,7 +1,7 @@
 import os, time, select, sys, random
-import data.getch
-import data.colors
-import menu
+import hurricane.data.getch
+import hurricane.data.colors
+import hurricane.menu as menu
 
 def prompt():
   invMenu = menu.menu("{yes}   {no}", [["yes"], ["no"]], [["Yes"], ["No"]])
@@ -21,7 +21,7 @@ def prompt():
     return False
 
 def getch(p=">> "):
-  return data.getch.getch(p)
+  return hurricane.data.getch.getch(p)
 
 def clear():
   if os.name == 'nt':
@@ -30,7 +30,7 @@ def clear():
     os.system('clear')
 
 def replaceinstrings(text, player):
-  c = data.colors.getcolors()
+  c = hurricane.data.colors.getcolors()
   text = text.replace("[@]", player["name"].title())
   text = text.replace("R{", c["red"])
   text = text.replace("B{", c["blue"])
