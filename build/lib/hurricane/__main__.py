@@ -11,9 +11,6 @@ import json
 import sys
 import os
 
-def wait():
-  input("...")
-
 def startmenu():
   asset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/assets.dat")
   
@@ -57,12 +54,12 @@ use keys 'w' 'a' 's' and 'd' to navigate the menu
         savegameresult = savegame.load(username, password)
         if savegameresult == "FILE":
           print("that saved gamed does not exist")
-          wait()
+          utils.wait()
           action = None
           savegameresult = None
         elif savegameresult == "PASS":
           print("incorrect password for saved game")
-          wait()
+          utils.wait()
           action = None
           savegameresult = None
         else:

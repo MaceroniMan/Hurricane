@@ -1,0 +1,789 @@
+{
+  "Dockyard Guard": {
+    "z1-docks": {
+      "conditions": [
+        [
+          "quest('z1.main') == -1",
+          "start"
+        ],
+        [
+          "true",
+          "secondtime"
+        ]
+      ],
+      "observation": [
+        [
+          "true",
+          "A Dockyard Guard watches you"
+        ]
+      ],
+      "dialouges": {
+        "start": {
+          "dialouge": [
+            [
+              "Dockyard Guard",
+              "Hello [@], it says here on my sheet that you are the new recruit eh?`Well lets hope you fare better than the last one...`Anyway, here is your entry level gear, and the 'B{General}' wants to speak with you right away, he is in the camp directly 'Y{south}' of here."
+            ]
+          ],
+          "do": "give dagger | stars 10 | quest z1.main 0",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "whoareyou",
+                "text": "Who are you?"
+              }
+            ],
+            [
+              "true",
+              {
+                "goto": "lastrecruit",
+                "text": "What happened to the last recruit?"
+              }
+            ],
+            [
+              "true",
+              {
+                "goto": "exit",
+                "text": "Goodbye!"
+              }
+            ]
+          ]
+        },
+        "secondtime": {
+          "dialouge": [
+            [
+              "Dockyard Guard",
+              "Yes? Do you need something?"
+            ]
+          ],
+          "do": "",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "whoareyou",
+                "text": "Who are you?"
+              }
+            ],
+            [
+              "true",
+              {
+                "goto": "lastrecruit",
+                "text": "What happened to the last recruit?"
+              }
+            ],
+            [
+              "quest('z1.campstore.unlock') == 0",
+              {
+                "goto": "storemenu",
+                "text": "Do you know anything about a store handle?"
+              }
+            ],
+            [
+              "true",
+              {
+                "goto": "exit",
+                "text": "Goodbye!"
+              }
+            ]
+          ]
+        },
+        "whoareyou": {
+          "dialouge": [
+            [
+              "Dockyard Guard",
+              "I am the Mighty Dockyard Guard! I watch over any and all trading!"
+            ]
+          ],
+          "do": "",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "secondtime",
+                "text": "Nice!"
+              }
+            ]
+          ]
+        },
+        "lastrecruit": {
+          "dialouge": [
+            [
+              "Dockyard Guard",
+              "Ummm, well he uhhh, you know what? You should just ask the 'B{General}'..."
+            ]
+          ],
+          "do": "",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "secondtime",
+                "text": "Ah, ok."
+              }
+            ]
+          ]
+        },
+        "storemenu": {
+          "dialouge": [
+            [
+              "Dockyard Guard",
+              "Excuse me? Oh the one B{Jodie} is missing.`No I do not know who has it`But I keep a watchful eye over this dock, so if I find it I will inform B{Jodie} right away."
+            ],
+            [
+              "You",
+              "Alright, thank you."
+            ]
+          ],
+          "do": "exit",
+          "options": []
+        }
+      }
+    }
+  },
+  "Inn Keeper": {
+    "z1-campinn": {
+      "conditions": [
+        [
+          "quest('z1.innkeeper.stew') == -1",
+          "start"
+        ],
+        [
+          "quest('z1.innkeeper.stew') in [0, 1]",
+          "waiting"
+        ],
+        [
+          "quest('z1.innkeeper.stew') == 2",
+          "done"
+        ]
+      ],
+      "observation": [
+        [
+          "true",
+          "The inn keeper is stirring a massive pot of soup in the corner"
+        ]
+      ],
+      "dialouges": {
+        "start": {
+          "dialouge": [
+            [
+              "Innkeeper",
+              "Well hello there young one! What brings you to the inn?"
+            ],
+            [
+              "You",
+              "Not much, just looking around. Who are you?"
+            ],
+            [
+              "Innkeeper",
+              "Well I am Frank of course I am!"
+            ],
+            [
+              "You",
+              "I see! Hello Frank, what are you doing over there?"
+            ],
+            [
+              "Frank",
+              "Well you see, I am trying to make soup for my husband Fred, but it just does not taste right of course!"
+            ],
+            [
+              "You",
+              "Hmmm, do you need any help?"
+            ],
+            [
+              "Frank",
+              "Well, yes I would of course! Lets see...`If you could grab me a B{Foxnose} plant that would be terrific. There is sometimes a G{Shady Trader} that comes to visit the Y{Town Square} that carries them of course. You will need some stars to get some from him, I would think B{15 stars} should be enough."
+            ]
+          ],
+          "do": "stars 15 | quest z1.innkeeper.stew 0",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "exit",
+                "text": "No problem, be right back!"
+              }
+            ]
+          ]
+        },
+        "hurry": {
+          "dialouge": [
+            [
+              "Frank",
+              "Please hurry of course!"
+            ]
+          ],
+          "do": "exit",
+          "options": []
+        },
+        "done": {
+          "dialouge": [
+            [
+              "Frank",
+              "Thank you so much for helping out with that soup, it really means a lot to me."
+            ]
+          ],
+          "do": "exit",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "exit",
+                "text": "No problem!"
+              }
+            ]
+          ]
+        },
+        "waiting": {
+          "dialouge": [
+            [
+              "Frank",
+              "Did you find any yet?"
+            ]
+          ],
+          "do": "",
+          "options": [
+            [
+              "quest('z1.innkeeper.stew') == 0 and has('foxnose')",
+              {
+                "goto": "hasfoxnose",
+                "text": "Here is your Foxnose"
+              }
+            ],
+            [
+              "quest('z1.innkeeper.stew') == 1 and has('goat-meat')",
+              {
+                "goto": "hasgoatmeat",
+                "text": "Here is your Goat Meat *ew*"
+              }
+            ],
+            [
+              "quest('z1.innkeeper.stew') == 0 and not has('foxnose')",
+              {
+                "goto": "hurry",
+                "text": "Not yet"
+              }
+            ],
+            [
+              "quest('z1.innkeeper.stew') == 1 and not has('goat-meat')",
+              {
+                "goto": "hurry",
+                "text": "Not yet"
+              }
+            ],
+            [
+              "quest('z1.campstore.unlock') == 0",
+              {
+                "goto": "storemenu",
+                "text": "Do you know anything about a store handle?"
+              }
+            ]
+          ]
+        },
+        "hasfoxnose": {
+          "dialouge": [
+            [
+              "Frank",
+              "Thank you so much young one!`I must say you are a rather helpful helper. Would you do one more favor for me?"
+            ],
+            [
+              "You",
+              "Sure! What do you need?"
+            ],
+            [
+              "Frank",
+              "My stew is a bit bland right now, do you think you could find some G{Goat Meat} to help spice it up? It used to be sold in the Y{Camp Store}, but I am afraid they do not sell it anymore, though there were rumors..."
+            ],
+            [
+              "You",
+              "Rumors?`Of what?"
+            ],
+            [
+              "Frank",
+              "Well...`At least I heard...`There may still be some locked in the store's storage. If you can find your way in you might be able to grab some B{Goat Meat} without anyone knowing."
+            ]
+          ],
+          "do": "quest z1.innkeeper.stew 1",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "exit",
+                "text": "Alright, I will get the meat!"
+              }
+            ]
+          ]
+        },
+        "hasgoatmeat": {
+          "dialouge": [
+            [
+              "Frank",
+              "You found some! My that is wonderful of course! This is the perfect thing for my soup!"
+            ],
+            [
+              "You",
+              "Sure! Glad I could help!"
+            ],
+            [
+              "Frank",
+              "Now if you wait just a moment...`A little longer...`...`...`YES!`My stew is finaly done! Time to tell Fred.`OH FRE-ED!"
+            ],
+            [
+              "Fred",
+              "Huh? Did you call me Frank?"
+            ],
+            [
+              "Frank",
+              "Yes! This young travler helped me make my famous stew!"
+            ],
+            [
+              "Fred",
+              "My, that is good stew, thank you...`I am so very sorry, but what was your name?"
+            ],
+            [
+              "You",
+              "My name is [@], I am the new recruit here."
+            ],
+            [
+              "Fred",
+              "I see! Well, thank you for helping my husband with his stew.`Between you and me, he is not the best cook."
+            ],
+            [
+              "Frank",
+              "Hey!"
+            ],
+            [
+              "Fred",
+              "Kidding, kidding.`I almost forgot, here is a few B{stars} for helping out.`Well, have a good day [@]!`"
+            ]
+          ],
+          "do": "quest z1.innkeeper.stew 2 | stars 20",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "exit",
+                "text": "You too!"
+              }
+            ]
+          ]
+        },
+        "storemenu": {
+          "dialouge": [
+            [
+              "Frank",
+              "A... what?"
+            ],
+            [
+              "You",
+              "A handle. One made for a store cupboard?"
+            ],
+            [
+              "Frank",
+              "I am sorry, but I do not know know.`That sounds like something someone B{shady} would take of course."
+            ],
+            [
+              "You",
+              "Thank you for your time."
+            ]
+          ],
+          "do": "exit",
+          "options": []
+        }
+      }
+    }
+  },
+  "Shady Trader": {
+    "z1-campcenter": {
+      "conditions": [
+        [
+          "random(3) and not flag('z1.npc.shady-trader.first')",
+          "first"
+        ],
+        [
+          "random(3) and flag('z1.npc.shady-trader.first')",
+          "start"
+        ]
+      ],
+      "observation": [
+        [
+          "true",
+          "A shady trader watches you from a distance"
+        ]
+      ],
+      "dialouges": {
+        "first": {
+          "dialouge": [
+            [
+              "Shady Trader",
+              "Yea? Who are you and what do you want?"
+            ],
+            [
+              "You",
+              "My name is [@], who are you?"
+            ],
+            [
+              "Shady Trader",
+              "[@] huh? Interesting name.`All you need to know is that I am a trader of wares. Some legal... some not, all of which cost G{stars}."
+            ]
+          ],
+          "do": "set z1.npc.shady-trader.first 1",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "start",
+                "text": "Alright then"
+              }
+            ]
+          ]
+        },
+        "start": {
+          "dialouge": [
+            [
+              "Shady Trader",
+              "Care to bargin?"
+            ]
+          ],
+          "do": "",
+          "options": [
+            [
+              "stars >= 10",
+              {
+                "goto": "yesfoxnose",
+                "text": "I will take a foxnose"
+              }
+            ],
+            [
+              "stars < 10",
+              {
+                "goto": "nofoxnose",
+                "text": "I will take a foxnose"
+              }
+            ],
+            [
+              "quest('z1.campstore.unlock') == 0",
+              {
+                "goto": "storehandle",
+                "text": "Do you know anything about a store handle?"
+              }
+            ],
+            [
+              "true",
+              {
+                "goto": "exit",
+                "text": "No thanks"
+              }
+            ]
+          ]
+        },
+        "yesfoxnose": {
+          "dialouge": [
+            [
+              "Trader Joe",
+              "Foxnose eh? That will be 10 stars"
+            ]
+          ],
+          "do": "stars -10 | give foxnose",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "pleasure",
+                "text": "Deal"
+              }
+            ]
+          ]
+        },
+        "nofoxnose": {
+          "dialouge": [
+            [
+              "Trader Joe",
+              "Yeaaaaa, sorry. G{Foxnose} is a crisp 10 stars. No stars, no G{foxnose}. Thats how it works around here kid."
+            ]
+          ],
+          "do": "exit",
+          "options": []
+        },
+        "pleasure": {
+          "dialouge": [
+            [
+              "Trader Joe",
+              "Pleasure doing business with you."
+            ]
+          ],
+          "do": "exit",
+          "options": []
+        },
+        "storehandle": {
+          "dialouge": [
+            [
+              "Trader",
+              "A... what?"
+            ],
+            [
+              "You",
+              "A handle. One made for a store cupboard?"
+            ],
+            [
+              "Trader",
+              "Hmph, fine. I may have it.`A nice 20 stars would make sure I tell you the right information..."
+            ]
+          ],
+          "do": "",
+          "options": [
+            [
+              "stars >= 20",
+              {
+                "goto": "yesstorehandle",
+                "text": "Here is 20 stars"
+              }
+            ],
+            [
+              "stars < 20",
+              {
+                "goto": "nostorehandle",
+                "text": "I do not have 20 stars"
+              }
+            ]
+          ]
+        },
+        "yesstorehandle": {
+          "dialouge": [
+            [
+              "Trader",
+              "Why thank you! Here is your G{store handle}."
+            ],
+            [
+              "You",
+              "Stealing is not cool, I could report you to the B{General} you know."
+            ],
+            [
+              "Trader",
+              "I have no idea what you are talking about, I found that piece of shiny metal just laying about."
+            ]
+          ],
+          "do": "stars -20 | give store-cabinet-handle",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "pleasure",
+                "text": "Thanks anyway"
+              }
+            ]
+          ]
+        },
+        "nostorehandle": {
+          "dialouge": [
+            [
+              "Trader",
+              "Come back later, I do not work for free."
+            ]
+          ],
+          "do": "exit",
+          "options": []
+        }
+      }
+    }
+  },
+  "Shop Owner": {
+    "z1-campstore": {
+      "conditions": [
+        [
+          "quest('z1.campstore.unlock') == -1",
+          "start"
+        ],
+        [
+          "quest('z1.campstore.unlock') == 0",
+          "waiting"
+        ],
+        [
+          "quest('z1.campstore.unlock') == 1",
+          "done"
+        ]
+      ],
+      "observation": [
+        [
+          "quest('z1.campstore.unlock') != 1",
+          "The store owner sits in a chair behind the counter, looking rather board"
+        ],
+        [
+          "true",
+          "The store owner is standing behind the counter"
+        ]
+      ],
+      "dialouges": {
+        "start": {
+          "dialouge": [
+            [
+              "You",
+              "Hi! What do you have for sale?"
+            ],
+            [
+              "Shop Owner",
+              "Huh? Oh. Nothing. At least, nothing NOW. We used to have food and supplies but someone stole the handle from the closet over there."
+            ]
+          ],
+          "do": "",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "stealhandlequestion",
+                "text": "Stole the... handle?"
+              }
+            ],
+            [
+              "true",
+              {
+                "goto": "gethandleplea",
+                "text": "Do you need help getting it back?"
+              }
+            ]
+          ]
+        },
+        "stealhandlequestion": {
+          "dialouge": [
+            [
+              "Shop Owner",
+              "Yes.`Someone actually stole the handle off my cabinet.`Now what am I supposed to do?"
+            ]
+          ],
+          "do": "",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "gethandleplea",
+                "text": "I have no idea, I might be able to help find it?"
+              }
+            ]
+          ]
+        },
+        "gethandleplea": {
+          "dialouge": [
+            [
+              "Shop Owner",
+              "Would you do that, thank you so much! That would help out so much.`It has become a pigsty in here of late. When people cannot get their daily food they can get pretty mad."
+            ]
+          ],
+          "do": "quest z1.campstore.unlock 0",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "thankyouaccept",
+                "text": "Your welcome!"
+              }
+            ]
+          ]
+        },
+        "waiting": {
+          "dialouge": [
+            [
+              "Jodie",
+              "Do you have my handle yet?"
+            ]
+          ],
+          "do": "",
+          "options": [
+            [
+              "has('store-cabinet-handle')",
+              {
+                "goto": "hashandle",
+                "text": "Yes I do!"
+              }
+            ],
+            [
+              "not has('store-cabinet-handle')",
+              {
+                "goto": "nohashandle",
+                "text": "No I do not"
+              }
+            ]
+          ]
+        },
+        "hashandle": {
+          "dialouge": [
+            [
+              "Jodie",
+              "Are you sure? Let me see if it fits.`...`...`It does! By the rocks you are a lifesaver! Have a few stars as gratitude."
+            ],
+            [
+              "You",
+              "You are very welcome. Thank you for the stars!"
+            ],
+            [
+              "Jodie",
+              "Just so you know the store is open now too so if you every need supplies, I got 'em!"
+            ]
+          ],
+          "do": "quest z1.campstore.unlock 1",
+          "options": [
+            [
+              "true",
+              {
+                "goto": "exit",
+                "text": "I will keep that in mind"
+              }
+            ]
+          ]
+        },
+        "thankyouaccept": {
+          "dialouge": [
+            [
+              "Shop Owner",
+              "Again, thank you so much! I really appreatiate it."
+            ],
+            [
+              "You",
+              "I'll be back with your handle, do you have any idea who may have taken it?"
+            ],
+            [
+              "Shop Owner",
+              "No, but whoever it was has to be pretty B{shady}."
+            ],
+            [
+              "You",
+              "Alright, well then I will be back... I never caught your name?"
+            ],
+            [
+              "Store Owner",
+              "Jodie. At least that is what most call me."
+            ],
+            [
+              "You",
+              "Nice to meet you Jodie, I will be right back your handle."
+            ],
+            [
+              "Jodie",
+              "Thanks [@]!"
+            ],
+            [
+              "You",
+              "How do you know my name?"
+            ],
+            [
+              "Jodie",
+              "Word travels fast here. It was nice meeting you [@], and thanks again for bringing back my handle!"
+            ]
+          ],
+          "do": "exit",
+          "options": []
+        },
+        "nohashandle": {
+          "dialouge": [
+            [
+              "Jodie",
+              "Alright, take your time."
+            ]
+          ],
+          "do": "exit",
+          "options": []
+        }
+      }
+    }
+  }
+}

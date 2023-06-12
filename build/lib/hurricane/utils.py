@@ -3,6 +3,9 @@ import hurricane.data.getch
 import hurricane.data.colors
 import hurricane.menu as menu
 
+def wait():
+  input("...")
+
 def prompt():
   invMenu = menu.menu("{yes}   {no}", [["yes"], ["no"]], [["Yes"], ["No"]])
 
@@ -29,6 +32,28 @@ def clear():
   else:
     os.system('clear')
 
+def wrapprint(text, charlength, checkchar="", wrapchar="\n"):
+  cnt = 0
+  newouttext = ""
+  
+  for currchar in text:
+    
+    if currchar == checkchar:
+      newouttext += currchar
+      cnt = 0
+      
+    elif cnt == charlength:
+      if currchar == " ":
+        newouttext += wrapchar
+        cnt = 0
+      else:
+        newouttext += currchar
+    else:
+      cnt += 1
+      newouttext += currchar
+
+  return newouttext
+
 def replaceinstrings(text, player):
   c = hurricane.data.colors.getcolors()
   text = text.replace("[@]", player["name"].title())
@@ -39,8 +64,9 @@ def replaceinstrings(text, player):
   text = text.replace("}", c["reset"])
   return text
 
-def typing(words, player, speed=0.03, skip=True):
-  words = replaceinstrings(words, player)
+def typing(words, player=None, speed=0.03, skip=True):
+  if player != None:
+    words = replaceinstrings(words, player)
   inputs = 1
   for char in words:
     if skip:

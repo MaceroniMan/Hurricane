@@ -3,6 +3,9 @@ import hurricane.data.getch
 import hurricane.data.colors
 import hurricane.menu as menu
 
+def wait():
+  input("...")
+
 def prompt():
   invMenu = menu.menu("{yes}   {no}", [["yes"], ["no"]], [["Yes"], ["No"]])
 

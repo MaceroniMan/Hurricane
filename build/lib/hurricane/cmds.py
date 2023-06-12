@@ -46,9 +46,6 @@ def parse(command, player, npcs):
 
     elif word in ["store"]:
       return ["store"]
-      
-    elif word in ["save", "savegame"]:
-      return ["save"]
 
     elif word in ["quest", "quests", "status"]:
       return ["quests"]

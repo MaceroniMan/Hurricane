@@ -2,13 +2,10 @@ import hurricane.cmds as cmds
 import hurricane.utils as utils
 import hurricane.const as const
 
-def wait():
-  input("...")
-
 def run():
   utils.clear()
   utils.typing(utils.wrapprint("Hello and welcome to Hurricane! This is a short-interactive tutorial to show you all of the commands that can be run! Use the 'enter' key to continue when '...' shows up.", const.WIDTH))
-  wait()
+  utils.wait()
 
   utils.typing(utils.wrapprint("Nice! Next up is moving. Hurricane is pretty good at knowing what you want to do, so just type 'go north' or even just 'north'.", const.WIDTH))
   done = False
@@ -23,7 +20,7 @@ def run():
     else:
       utils.typing("Nope! Try again.")
 
-  wait()
+  utils.wait()
   utils.clear()
   utils.typing(utils.wrapprint("Next is the 'talk' command. Use it when you want to interact with a NPC. When there is more than one NPC in the current room make sure to specify the NPC you want to talk too. As practice, talk to 'Fred' over there.", const.WIDTH))
 
@@ -36,13 +33,13 @@ def run():
     else:
       utils.typing("Nope! Try again.")
 
-  wait()
+  utils.wait()
   utils.clear()
   utils.typing("Lastly are the more simple commands;` - 'bag' for the inventory` - 'open' or 'look' to look into a container` - 'store' to view the store interface if there is one` - 'quest' to view the current questing status` - 'travel' or 'stable' to view the teleport menu when in a stable` - 'exit' to exit the game")
 
-  wait()
+  utils.wait()
   utils.clear()
   utils.typing(utils.wrapprint("Congradulations! You have finished the tutorial, go have fun!", const.WIDTH))
-  wait()
+  utils.wait()
 
   return
