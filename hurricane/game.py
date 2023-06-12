@@ -1,7 +1,9 @@
 import hurricane.menu as menu
 import hurricane.cmds as cmds
 import hurricane.utils as utils
+import hurricane.const as const
 import hurricane.savegame as savegame
+import hurricane.data.colors as colors
 
 import copy
 import math
@@ -177,8 +179,10 @@ def storemenu(player, items, storedict):
             print("You purchased a " + item[1] + " for " + str(stars) + " stars")
 
 def dostables(player, world):
-  if len(player["stables"])-1 == 0: # there are no stables to travel to
-    print("there are no stables to travel to yet")
+  c = colors.getcolors()
+
+  if len(player["stables"]) == 0: # there are no stables to travel to
+    print("There are no stables to travel to yet")
     wait()
     return
   
@@ -191,9 +195,11 @@ def dostables(player, world):
   
   for stablelocation in player["stables"]:
     if stablelocation != player["location"]:
-      menustring += "Travel to {" + stablelocation + "}\n"
+      menustring += "Travel to '{" + stablelocation + "}'\n"
       reglist.append(stablelocation)
       dislist.append(world[stablelocation]["name"])
+    else:
+      menustring += "Travel to '" + world[stablelocation]["name"] + "' " + c["green"] + "(HERE)\n" + c["reset"]
   
   stableMenu = menu.menu(menustring, [reglist], [dislist])
   keypress = None
@@ -211,6 +217,8 @@ def dostables(player, world):
   place = stableMenu.value
   if keypress == "`":
     return None # if exited the menu
+  elif place == False:
+    return None # if nothing was selected
   else:
     utils.clear()
     player["location"] = place
@@ -419,9 +427,9 @@ def seequests(player, quests):
   if len(player["quests"]) > 0:
     for qid in player["quests"]:
       if player["quests"][qid] == len(quests[qid]["points"]): # check if the quest is compleated (1 past length of quest list)
-        donequests += wrapprint(quests[qid]["name"] + ": " + utils.replaceinstrings(quests[qid]["done"], player) + "\n\n", 70)
+        donequests += utils.wrapprint(quests[qid]["name"] + ": " + utils.replaceinstrings(quests[qid]["done"], player) + "\n\n", const.WIDTH)
       else:
-        notquests += wrapprint(quests[qid]["name"] + ": " + utils.replaceinstrings(quests[qid]["points"][player["quests"][qid]], player) + "\n\n", 70)
+        notquests += utils.wrapprint(quests[qid]["name"] + ": " + utils.replaceinstrings(quests[qid]["points"][player["quests"][qid]], player) + "\n\n", const.WIDTH)
   else:
     notquests += "No quests yet, go explore!"
 
@@ -438,32 +446,11 @@ def seequests(player, quests):
   
   wait()
 
-def wrapprint(text, charlength, checkchar="", wrapchar="\n"):
-  cnt = 0
-  newouttext = ""
-  
-  for currchar in text:
-    
-    if currchar == checkchar:
-      newouttext += currchar
-      cnt = 0
-      
-    elif cnt == charlength:
-      if currchar == " ":
-        newouttext += wrapchar
-        cnt = 0
-      else:
-        newouttext += currchar
-    else:
-      cnt += 1
-      newouttext += currchar
-
-  return newouttext
-
 def dialouge(npc, player, quests):
   dialougedict = npc[0]["dialouges"]
   talklocation = npc[1]
   starttext = ""
+  prev = None
 
   while True:
     utils.clear()
@@ -477,12 +464,20 @@ def dialouge(npc, player, quests):
     if starttext != "":
       beforetext += starttext + "\n\n"
     
-    for person_index in range(len(dialougecurrent["dialouge"])):
+    # if the user asked a question
+    if prev == None:
+      dialouges = dialougecurrent["dialouge"]
+    else:
+      dialouges = [prev] + dialougecurrent["dialouge"]
+
+    prev = None
+    
+    for person_index in range(len(dialouges)):
       utils.clear()
       print(utils.replaceinstrings(beforetext, player), end="", flush=True)
       
-      person = dialougecurrent["dialouge"][person_index]
-      text = wrapprint('  "' + person[1].replace("`", '"`  "') + '"', 70, "`", "\n   ")
+      person = dialouges[person_index]
+      text = utils.wrapprint('  "' + person[1].replace("`", '"`  "') + '"', const.WIDTH, "`", "\n   ")
       print(person[0] + ": ", end="\n", flush=True)
       doneskip = utils.typing(text, player)
       if doneskip:
@@ -491,7 +486,7 @@ def dialouge(npc, player, quests):
         print(person[0] + ": \n" + utils.replaceinstrings(text, player).replace("`", "\n"), end="", flush=True)
       
       beforetext += person[0] + ": \n" + text.replace("`", "\n") + "\n\n"
-      if person_index+1 != len(dialougecurrent["dialouge"]):
+      if person_index+1 != len(dialouges):
         input()
       
     doext = utils.parsedo(dialougecurrent["do"], player)
@@ -535,6 +530,9 @@ def dialouge(npc, player, quests):
 
       talklocation = dialoueMenu.value
 
+      # find the dialouge to put the question asked by user at top
+      prev = ["You", dialoueMenu.niceValue]
+
     if talklocation == "exit":
       break # leave the menu
 
@@ -543,15 +541,13 @@ def game(player, items, npcs, world, quests, containers, userdata):
     utils.clear()
     cr = world[player["location"]]
 
-    # this will let npcs stay there, but will cause unwanted side effects
-    # such as not being able to update the current player npcs
-    #if lastlocation != player["location"]:
+    # last part of logic will not run the random function if the room
+    # has NOT changed
     currentnpcs = utils.npcs(player, npcs)
   
     player["moves"] += 1
 
-    if player["moves"] % 5 == 0:
-      savegame.save(userdata[0], userdata[1], player)
+    savegame.save(userdata[0], userdata[1], player)
 
     if "introtext" in cr:
       say(player, cr["introtext"])
@@ -611,7 +607,7 @@ def game(player, items, npcs, world, quests, containers, userdata):
         
       outtext += preface + items[grounditems[gitem]]["name"] + postface
 
-    newouttext = wrapprint(utils.replaceinstrings(outtext, player), 70)
+    newouttext = utils.wrapprint(utils.replaceinstrings(outtext, player), const.WIDTH)
         
     print(newouttext + "\n")
   
@@ -629,7 +625,7 @@ def game(player, items, npcs, world, quests, containers, userdata):
 
     if command[0] == "EXT":
       utils.clear()
-      print("Are you sure you want to exit? Make sure to save first")
+      print("Are you sure you want to exit?")
       if utils.prompt():
         return # exit gameloop
     elif command[0] == "NAC":
@@ -660,19 +656,13 @@ def game(player, items, npcs, world, quests, containers, userdata):
       if command[1] == None:
         if len(currentnpcs) != 0:
           # maybe implement a better way to do multi npc
-          utils.typing("Be more specific with who to talk to", player)
+          utils.typing("To many options to talk to, be more specific", player)
           wait()
         else:
-          utils.typing("There is noone to talk to", player)
+          utils.typing("Who are you talking to?", player)
           wait()
       else:
         dialouge(currentnpcs[command[1]], player, quests)
-    elif command[0] == "save":
-      utils.clear()
-      # userdata: username, password
-      savegame.save(userdata[0], userdata[1], player)
-      utils.typing("Game Saved", player, speed=.1)
-      wait()
     elif command[0] == "quests":
       seequests(player, quests)
     elif command[0] == "stable":

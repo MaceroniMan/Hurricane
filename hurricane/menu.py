@@ -12,6 +12,7 @@ class menu(object):
     
     self.cords = [0, 0]
     self.value = None
+    self.niceValue = None
 
     self.colors = colors.getcolors()
 
@@ -63,7 +64,12 @@ class menu(object):
 
   def enter(self):
     print("")
-    self.value = self.menuLayout[self.cords[0]][self.cords[1]]
+    try:
+      self.value = self.menuLayout[self.cords[0]][self.cords[1]]
+      self.niceValue = self.displayLayout[self.cords[0]][self.cords[1]]
+    except IndexError:
+      self.value = False
+      self.niceValue = False
 
   def registerkey(self, key, keylayout={"w":"up", "s":"down", "a":"left", "d":"right", "":"enter"}):
     if key in keylayout:
