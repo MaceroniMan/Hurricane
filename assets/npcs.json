@@ -76,7 +76,7 @@
             [
               "quest('z1.campstore.unlock') == 0",
               {
-                "goto": "storemenu",
+                "goto": "storehandle",
                 "text": "Do you know anything about a store handle?"
               }
             ],
@@ -125,7 +125,7 @@
             ]
           ]
         },
-        "storemenu": {
+        "storehandle": {
           "dialouge": [
             [
               "Dockyard Guard",
@@ -275,7 +275,7 @@
             [
               "quest('z1.campstore.unlock') == 0",
               {
-                "goto": "storemenu",
+                "goto": "storehandle",
                 "text": "Do you know anything about a store handle?"
               }
             ]
@@ -369,7 +369,7 @@
             ]
           ]
         },
-        "storemenu": {
+        "storehandle": {
           "dialouge": [
             [
               "Frank",
@@ -666,7 +666,7 @@
           "dialouge": [
             [
               "Shop Owner",
-              "Would you do that, thank you so much! That would help out so much.`It has become a pigsty in here of late. When people cannot get their daily food they can get pretty mad."
+              "Would you do that, thank you so much! That would help out so much.`It has become a mess in here."
             ]
           ],
           "do": "quest z1.campstore.unlock 0",
@@ -763,11 +763,11 @@
             ],
             [
               "You",
-              "How do you know my name?"
+              "Wait, how do you know my name?"
             ],
             [
               "Jodie",
-              "Word travels fast here. It was nice meeting you [@], and thanks again for bringing back my handle!"
+              "Word travels fast here. It was nice meeting you [@], and thanks again for bringing back my handle."
             ]
           ],
           "do": "exit",

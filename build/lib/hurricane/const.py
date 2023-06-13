@@ -1,3 +1,3 @@
-VERSION = "v0.1.1"
-KEY = "hurricane-0.1.1"
+VERSION = "v0.2.0"
+KEY = "hurricane-0.2.0"
 WIDTH = 70
