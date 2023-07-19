@@ -26,7 +26,7 @@ def unlockchest(player, room, containers, items):
       utils.typing("The chest is already unlocked", player)
       utils.wait()
       
-    inventory(player, room, containers, items)
+    scripts.inventory(player, room, containers, items)
 
 def itemproperties(item, items, player):
   itemprop = items[item]
