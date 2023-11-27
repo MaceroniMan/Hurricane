@@ -75,9 +75,11 @@ def dialouge(npc, player, quests):
     
       for option in dialougecurrent["options"]:
         if utils.parsecondition(option[0], player):
-          optionstring += "{" + option[1]["goto"] + "}\n"
+          # added the dollar sign so that if two options went to the same place
+          # they would still be different selections
+          optionstring += "{" + option[1]["goto"] + "$" + option[1]["text"] + "}\n"
           nicelist[0].append(option[1]["text"])
-          optionlist[0].append(option[1]["goto"])
+          optionlist[0].append(option[1]["goto"] + "$" + option[1]["text"])
 
       beforetext = utils.replaceinstrings(beforetext, player).replace("`", "\n")
       dialoueMenu = menu.menu(beforetext + optionstring, optionlist, nicelist)
@@ -88,7 +90,7 @@ def dialouge(npc, player, quests):
 
         dialoueMenu.registerkey(utils.getch(""))
 
-      talklocation = dialoueMenu.value
+      talklocation = dialoueMenu.value.split("$")[0]
 
       # find the dialouge to put the question asked by user at top
       prev = ["You", dialoueMenu.niceValue]

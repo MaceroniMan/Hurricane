@@ -5,6 +5,14 @@ import hurricane.scripts as scripts
 import copy
 import math
 
+def itemproperties(item, items, player):
+  itemprop = items[item]
+  if itemprop["value"] <= 1:
+    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth almost nothing", player)
+  else:
+    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth maybe " + str(itemprop["value"]) + " stars.", player)
+  utils.wait()
+
 def inventory(player, room, containers, items):
   # note: bag is the same as containers and chests
   utils.clear()
