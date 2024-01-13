@@ -1,21 +1,19 @@
 from hurricane.const import KEY, VERSION
 
 import hurricane.data.tutorial as tutorial
-import hurricane.data.htf as htf
 import hurricane.savegame as savegame
 import hurricane.game as game
 import hurricane.utils as utils
 import hurricane.menu as menu
 
+import lzma
 import json
 import sys
 import os
 
-def startmenu():
+def startmenu(assets):
   print("Loading Assets...")
-  asset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/assets.dat")
   
-  assets = json.loads(htf.decode(asset_path, KEY))
   items = assets["items"]
   npcs = assets["npcs"]
   world = assets["world"]
@@ -92,4 +90,9 @@ use keys 'w' 'a' 's' and 'd' to navigate the menu
   game.game(savegameresult, items, npcs, world, quests, containers, [username, password])
 
 if __name__ == "__main__":
-  startmenu()
+  asset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/assets.dat")
+
+  with lzma.open(asset_path) as f:
+    assets = json.loads(f.read().decode("utf-8"))
+    
+  startmenu(assets)

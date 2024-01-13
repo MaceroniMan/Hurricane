@@ -2,8 +2,8 @@
 
 ## To Build
 
-1. Update the version numbers in both `setup.py` and `hurricane/const.py`
-2. Run `python3 setup.py bdist_wheel`
+1. Update the version numbers in `hurricane/const.py`
+2. Run `./build.sh`
 3. Push to GitHub
 
 ## Versioning

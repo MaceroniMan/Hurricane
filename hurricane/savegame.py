@@ -16,16 +16,16 @@ BASEPLAYER = {
   "recipes" : [] # a list of all the current crafting recipies
 }
 
-def setup():
+def getPath(username):
   cur_path = os.getcwd()
   save_path = os.path.join(cur_path, "saves")
   if not os.path.exists(save_path):
     os.mkdir(save_path)
-  return save_path
+  return os.path.join(save_path, username)
 
 def load(username, password):
   username = username.lower()
-  savepath = os.path.join(setup(), username)
+  savepath = getPath(username)
   if os.path.exists(savepath):
     try:
       return json.loads(htf.decode(savepath, password))
@@ -36,7 +36,7 @@ def load(username, password):
 
 def create(username, password, overwrite=False):
   username = username.lower()
-  savepath = os.path.join(setup(), username)
+  savepath = getPath(username)
   if os.path.exists(savepath) and overwrite:
     if input("this saved game already exists, overwrite? [yes/no] ") != "yes":
       return "NA"
@@ -51,4 +51,4 @@ def create(username, password, overwrite=False):
 
 def save(username, password, player):
   username = username.lower()
-  htf.encode(json.dumps(player), password,  os.path.join(setup(), username))
+  htf.encode(json.dumps(player), password, getPath(username))

@@ -1,11 +1,15 @@
 from setuptools import setup
+import sys
 
 with open("README.md", "r") as f:
   long_description = f.read()
 
+with open("VERSION", "r") as f:
+  version = f.read()
+
 setup(
   name='Hurricane',
-  version='0.3.1',
+  version=version,
   description='A text based game',
   long_description=long_description,
   url='https://github.com/MaceroniMan/Hurricane',

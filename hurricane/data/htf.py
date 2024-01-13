@@ -72,12 +72,12 @@ def decode(filename, key):
     key = __pswd(key)
   else:
     raise TypeError("invalid key type, must be string or int")
-  
+
   with open(filename, 'rb') as readfile:
     text = readfile.read()
   pswdhash = hashlib.sha512(str(key).encode()).hexdigest()
   stringlength = len(text) - 128
-  
+
   if stringlength % 128 != 0:
     chars = math.floor((stringlength) / 128) + 1
   else:

@@ -1,4 +1,4 @@
-import hurricane.data.htf as htf
+#import hurricane.data.htf as htf
 import json
 
 KEY = "hurricane-0.3.1"
@@ -53,6 +53,10 @@ maind = {
 
 print("encoding")
 
-htf.encode(json.dumps(maind), KEY, "hurricane/data/assets.dat")
+import lzma
+with lzma.open("hurricane/data/assets.dat", "w") as f:
+  f.write(json.dumps(maind).encode("utf-8"))
+
+#htf.encode(json.dumps(maind), KEY, "hurricane/data/assets.dat")
 
 print("done")
