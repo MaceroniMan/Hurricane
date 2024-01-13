@@ -19,11 +19,11 @@
       ? "You", "Stole... a handle?"
       ? "Shop Owner", "Yes, the lock on the door was picked and the door was open this morning. Nothing else was stolen, just the handle."
 
-      > "Do you want help getting it back? G{>}" $.gethandleplea
+      > "Do you want help getting it back?" $.gethandleplea
 
       * do: ""
 
-    > "Do you want help getting it back? G{>}" $.gethandleplea
+    > "Do you want help getting it back?" $.gethandleplea
 
     * do: ""
 
@@ -35,7 +35,7 @@
     ? "Narrator", "She sticks out her hand and gives you a handshake"
     ? "Shop Owner", "I am Jodie by the way, it is good to meet you [@]"
 
-    > "You are very welcome Jodie G{>}" $.accepthandlequest
+    > "You are very welcome Jodie" $.accepthandlequest
     : "How do you know my name?"
       ? "Jodie", "Word get around quick you know, you are the new recruit right?"
       ? "You", "I am!"

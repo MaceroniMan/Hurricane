@@ -12,15 +12,15 @@
     ? "You", "Not much, just looking around. Who are you?"
     ? "Innkeeper", "Oh ho ho, right to the point eh? I am Frank, leader of this fine Inn."
     
-    : "What are you doing? G{>}" [start.whatdoing]
+    : "What are you doing?" [start.whatdoing]
       ? "Frank", "I am trying to make some soup for my husband, but it just does not taste right."
       ? "You", "Do you need any help?"
       ? "Frank", "Hmm, do you think you could get me some ingredients?"
       ? "You", "Yes! I think I could, what ingredients do you want?"
       ? "Frank", "If you could grab me a B{Foxnose} plant that would be terrific. There is sometimes a G{Shady Trader} that comes to visit the Y{Town Square} that carries them. You will need some stars to get some from him, but I would think B{15 stars} should be enough."
       
-      > "I will be back as soon as I can G{>}" mads.exit
-      > "Give me a few hours G{>}" mads.exit
+      > "I will be back as soon as I can" mads.exit
+      > "Give me a few hours" mads.exit
 
       * do: "stars 15 | quest z1.innkeeper.stew 0"
 
@@ -30,7 +30,7 @@
       : "Thank you"
         ? "Frank", "You are quite welcome, now, what else can I help you with?"
         
-        > "What are you doing? G{>}" $.start.whatdoing
+        > "What are you doing?" $.start.whatdoing
 
         * do: ""
 
@@ -46,18 +46,18 @@
   [done]
     ? "Frank", "Thank you very much for helping me out with that soup, it means quite a lot to me."
 
-    > "No problem G{>}" mads.exit
-    > "Do you know anything about a store handle? G{>}" $.storehandle { quest('z1.campstore.unlock') == 0 }
+    > "No problem " mads.exit
+    > "Do you know anything about a store handle? " $.storehandle { quest('z1.campstore.unlock') == 0 }
 
     * do: ""
 
   [waiting]
     ? "Frank", "Did you find my ingredients yet?"
 
-    > "Here is your B{Foxnose} G{>}" $.has-foxnose { quest('z1.innkeeper.stew') == 0 and has('foxnose') }
-    > "Here is your B{Goat Meat} G{>}" $.has-goatmeat { quest('z1.innkeeper.stew') == 1 and has('goat-meat') }
-    > "Not yet G{>}" $.notdone { quest('z1.innkeeper.stew') in [1, 0] and not has('foxnose') or not has('goat-meat') }
-    > "Do you know anything about a store handle? G{>}" $.storehandle { quest('z1.campstore.unlock') == 0 }
+    > "Here is your B{Foxnose} " $.has-foxnose { quest('z1.innkeeper.stew') == 0 and has('foxnose') }
+    > "Here is your B{Goat Meat} " $.has-goatmeat { quest('z1.innkeeper.stew') == 1 and has('goat-meat') }
+    > "Not yet" $.notdone { quest('z1.innkeeper.stew') in [1, 0] and not has('foxnose') or not has('goat-meat') }
+    > "Do you know anything about a store handle?" $.storehandle { quest('z1.campstore.unlock') == 0 }
 
     * do: ""
   

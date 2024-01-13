@@ -12,6 +12,7 @@ import sys
 import os
 
 def startmenu():
+  print("Loading Assets...")
   asset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/assets.dat")
   
   assets = json.loads(htf.decode(asset_path, KEY))

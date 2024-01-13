@@ -1,7 +1,7 @@
 import hurricane.data.htf as htf
 import json
 
-KEY = "hurricane-0.2.1"
+KEY = "hurricane-0.3.1"
 
 # room key explinations:
 """

@@ -24,6 +24,7 @@ def setup():
   return save_path
 
 def load(username, password):
+  username = username.lower()
   savepath = os.path.join(setup(), username)
   if os.path.exists(savepath):
     try:
@@ -34,6 +35,7 @@ def load(username, password):
     return "FILE"
 
 def create(username, password, overwrite=False):
+  username = username.lower()
   savepath = os.path.join(setup(), username)
   if os.path.exists(savepath) and overwrite:
     if input("this saved game already exists, overwrite? [yes/no] ") != "yes":
@@ -48,4 +50,5 @@ def create(username, password, overwrite=False):
   return newplayer
 
 def save(username, password, player):
+  username = username.lower()
   htf.encode(json.dumps(player), password,  os.path.join(setup(), username))

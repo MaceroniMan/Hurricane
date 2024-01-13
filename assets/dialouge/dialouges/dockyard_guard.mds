@@ -11,7 +11,7 @@
 
     > "Who are you?" $.whoareyou { true }
     > "What happened to the last recruit?" $.lastrecruit { true }
-    > "Goodbye!" $.whoareyou { true } // TODO: replace me
+    > "Goodbye!" mads.exit { true }
 
     * do: "give dagger | stars 10 | quest z1.main 0"
 
@@ -21,7 +21,7 @@
     > "Who are you?" $.whoareyou { true }
     > "What happened to the last recruit?" $.lastrecruit { true }
     > "Do you know anything about a store handle?" $.storehandle { quest('z1.campstore.unlock') == 0 } 
-    > "Goodbye!" mads.exit { true } // TODO: replace me
+    > "Goodbye!" mads.exit { true }
 
     * do: ""
 

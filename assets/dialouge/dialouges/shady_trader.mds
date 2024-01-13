@@ -11,7 +11,7 @@
     ? "You", "My name is [@], who are you?"
     ? "Shady Trader", "[@] huh? Interesting name.`All you need to know is that I am a trader of wares. Some legal... some not, all of which cost G{stars}."
 
-    > "Alright then G{>}" $.start {true}
+    > "Alright then" $.start {true}
 
     * do: "set z1.npc.shady-trader.first 1"
 

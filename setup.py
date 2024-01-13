@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
   name='Hurricane',
-  version='0.2.1',
+  version='0.3.1',
   description='A text based game',
   long_description=long_description,
   url='https://github.com/MaceroniMan/Hurricane',

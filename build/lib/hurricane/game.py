@@ -7,7 +7,6 @@ import hurricane.savegame as savegame
 import hurricane.data.colors as colors
 
 import copy
-import math
 
 def say(player, saylist):
   for i in saylist:
@@ -27,14 +26,6 @@ def unlockchest(player, room, containers, items):
       utils.wait()
       
     scripts.inventory(player, room, containers, items)
-
-def itemproperties(item, items, player):
-  itemprop = items[item]
-  if itemprop["value"] <= 1:
-    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth almost nothing", player)
-  else:
-    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth maybe " + str(itemprop["value"]) + " stars.", player)
-  utils.wait()
 
 def dostables(player, world):
   c = colors.getcolors()

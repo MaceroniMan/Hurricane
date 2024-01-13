@@ -1,4 +1,5 @@
 import hurricane.data.colors as colors
+import hurricane.utils as utils
 
 class menu(object):
   def __init__(self, string, layout, dslayout=None):
@@ -90,7 +91,7 @@ class menu(object):
     for x in range(len(self.displayLayout)):
       column = self.displayLayout[x]
       for y in range(len(column)):
-        value = column[y]
+        value = utils.replaceinstrings(column[y], {"name":""})
         replacevalue = self.menuLayout[x][y]
         if self.cords[0] == x and self.cords[1] == y:
           returnmenu = returnmenu.replace("{" + replacevalue + "}", self.colors["background"] + value + self.colors["reset"])
