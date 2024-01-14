@@ -1,4 +1,4 @@
-from hurricane.const import KEY, VERSION
+from hurricane.const import VERSION
 
 import hurricane.data.tutorial as tutorial
 import hurricane.savegame as savegame

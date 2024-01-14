@@ -109,8 +109,8 @@
   },
   "z1-campstore": {
     "name": "Camp Store",
-    "desc.long": "A tent that seems larger than the rest, with shelves filled with food items and weapons, a smell of a old bookstore mixed with canvas fills the air",
-    "desc.short": "A large tent",
+    "desc.long": "A large building with a boars head hanging over the door, with shelves filled with food items and weapons, a smell of a old bookstore mixed with canvas fills the air",
+    "desc.short": "A large building",
     "dirs": {
       "north": {
         "dest": "z1-campcenter",

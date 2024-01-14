@@ -1,8 +1,6 @@
 #import hurricane.data.htf as htf
 import json
 
-KEY = "hurricane-0.3.1"
-
 # room key explinations:
 """
 name: the human readable name of the room
