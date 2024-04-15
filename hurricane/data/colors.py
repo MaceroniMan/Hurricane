@@ -7,6 +7,8 @@ except:
 
 # returns a list of printable colors
 def getcolors():
+
+  raise SyntaxError("old_colors_method_called")
   colors = {
     "red" : "",
     "yellow" : "",
@@ -42,6 +44,5 @@ def getcolors():
     colors["background"] = "\033[0;30;47m"
     colors["underline"] = "\033[4m"
     colors["supported"] = True
-
 
   return colors

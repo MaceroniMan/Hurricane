@@ -6,6 +6,7 @@ import hurricane.game as game
 import hurricane.utils as utils
 import hurricane.menu as menu
 
+import blessed
 import lzma
 import json
 import sys
@@ -13,6 +14,7 @@ import os
 
 def startmenu(assets):
   print("Loading Assets...")
+  term = blessed.Terminal()
   
   items = assets["items"]
   npcs = assets["npcs"]
@@ -37,7 +39,9 @@ use keys 'w' 'a' 's' and 'd' to navigate the menu
       utils.clear()
       print(mainMenu.get())
 
-      mainMenu.registerkey(utils.getch(": "))
+      keypress = utils.getch(term)
+
+      mainMenu.registerkey(keypress)
     
     menuinput = mainMenu.value
     if menuinput == "load":
@@ -87,7 +91,7 @@ use keys 'w' 'a' 's' and 'd' to navigate the menu
     else:
       action = None
 
-  game.game(savegameresult, items, npcs, world, quests, containers, [username, password])
+  game.Game(savegameresult, term, items, npcs, world, quests, containers, [username, password])
 
 if __name__ == "__main__":
   asset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/assets.dat")

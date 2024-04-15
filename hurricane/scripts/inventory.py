@@ -1,19 +1,19 @@
 import hurricane.menu as menu
 import hurricane.utils as utils
-import hurricane.scripts as scripts
+import hurricane.const as const
 
 import copy
 import math
 
-def itemproperties(item, items, player):
-  itemprop = items[item]
+def itemproperties(item, game):
+  itemprop = game.items[item]
   if itemprop["value"] <= 1:
-    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth almost nothing", player)
+    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth almost nothing", game.term, game.player)
   else:
-    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth maybe " + str(itemprop["value"]) + " stars.", player)
+    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth maybe " + str(itemprop["value"]) + " stars.", game.term, game.player)
   utils.wait()
 
-def inventory(player, room, containers, items):
+def inventory(game):
   # note: bag is the same as containers and chests
   utils.clear()
 
@@ -21,30 +21,30 @@ def inventory(player, room, containers, items):
   
   while not done:
     maxinvlength = 9
-    for i in player["inventory"]:
-      nme = items[i]["name"]
+    for i in game.player["inventory"]:
+      nme = game.items[i]["name"]
       if len(nme) > maxinvlength:
         maxinvlength = len(nme)
 
     maxgndlength = 6
-    grounditems = copy.deepcopy(player["world"][player["location"]])
+    grounditems = copy.deepcopy(game.player["world"][game.player["location"]])
     for i in grounditems:
-      nme = items[i]["name"]
+      nme = game.items[i]["name"]
       if len(nme) > maxgndlength:
         maxgndlength = len(nme)
   
     maxbaglength = None
     currentcontainer = []
 
-    if "container" in room:
-      if utils.parsecondition(room["container"]["condition"], player):
-        if player["location"] in player["containers"]:
-          currentcontainer = copy.deepcopy(player["containers"][player["location"]])
+    if "container" in game.cr:
+      if utils.parsecondition(game.cr["container"]["condition"], game.player):
+        if game.player["location"] in game.player["containers"]:
+          currentcontainer = copy.deepcopy(game.player["containers"][game.player["location"]])
           
           maxbaglength = 5
           
           for i in currentcontainer:
-            nme = items[i]["name"]
+            nme = game.items[i]["name"]
             if len(nme) > maxbaglength:
               maxbaglength = len(nme)
 
@@ -64,7 +64,7 @@ def inventory(player, room, containers, items):
     
     utils.clear()
   
-    printstring = "Stars: " + str(player["stars"]) + "\n\n"
+    printstring = "Stars: " + str(game.player["stars"]) + "\n\n"
     reglist_inv = []
     reglist_bag = []
     reglist_gnd = []
@@ -80,7 +80,7 @@ def inventory(player, room, containers, items):
 
     printstring += "+-" + "-"*math.ceil(inventorytitleminus/2) + "inventory" + "-"*math.ceil(inventorytitleminus/2) + "-+" + bagtitlestring + "-" + "-"*math.ceil(groundtitleminus/2) + "ground" + "-"*math.ceil(groundtitleminus/2) + "-+" + "\n"
   
-    maxlength = max([len(currentcontainer), len(player["inventory"]), len(grounditems)])+1
+    maxlength = max([len(currentcontainer), len(game.player["inventory"]), len(grounditems)])+1
   
     printstring += "| " + " "*(maxinvlength) + " |"
     if maxbaglength != None:
@@ -89,29 +89,29 @@ def inventory(player, room, containers, items):
     printstring += "\n" # end the line
     
     for i in range(maxlength):
-      if i < len(player["inventory"]):
-        extraspaces = maxinvlength-len(items[player["inventory"][i]]["name"])
+      if i < len(game.player["inventory"]):
+        extraspaces = maxinvlength-len(game.items[game.player["inventory"][i]]["name"])
         
-        printstring += "| " + " "*(extraspaces) + "{inv$" + player["inventory"][i] + "$" + str(i) + "} |"
-        dislist_inv.append(items[player["inventory"][i]]["name"])
-        reglist_inv.append("inv$" + player["inventory"][i] + "$" + str(i))
+        printstring += "| " + " "*(extraspaces) + "{inv$" + game.player["inventory"][i] + "$" + str(i) + "} |"
+        dislist_inv.append(game.items[game.player["inventory"][i]]["name"])
+        reglist_inv.append("inv$" + game.player["inventory"][i] + "$" + str(i))
       else:
         printstring += "| " + " "*(maxinvlength) + " |"
 
       if i < len(currentcontainer):
-        extraspaces = maxbaglength-len(items[currentcontainer[i]]["name"])
+        extraspaces = maxbaglength-len(game.items[currentcontainer[i]]["name"])
         
         printstring += " " + " "*(extraspaces) + "{bag$" + currentcontainer[i] + "$" + str(i) + "} |"
-        dislist_bag.append(items[currentcontainer[i]]["name"])
+        dislist_bag.append(game.items[currentcontainer[i]]["name"])
         reglist_bag.append("bag$" + currentcontainer[i] + "$" + str(i))
       elif maxbaglength != None:
         printstring += " " + " "*(maxbaglength) + " |"
 
       if i < len(grounditems):
-        extraspaces = maxgndlength-len(items[grounditems[i]]["name"])
+        extraspaces = maxgndlength-len(game.items[grounditems[i]]["name"])
 
         printstring += " " + " "*(extraspaces) + "{gnd$" + grounditems[i] + "$" + str(i) + "} |"
-        dislist_gnd.append(items[grounditems[i]]["name"])
+        dislist_gnd.append(game.items[grounditems[i]]["name"])
         reglist_gnd.append("gnd$" + grounditems[i] + "$" + str(i))
       else:
         printstring += " " + " "*(maxgndlength) + " |"
@@ -143,9 +143,9 @@ def inventory(player, room, containers, items):
       currentoutputmenu = invMenu.get()
       print(currentoutputmenu)
 
-      keypress = utils.getch(": ")
+      keypress = utils.getch(game.term)
       
-      invMenu.registerkey(keypress, {"w":"up", "s":"down", "a":"left", "d":"right", "":"enter", " ":"enter", "`":"enter"})
+      invMenu.registerkey(keypress)
 
     if invMenu.value == False: # if the inventory is empty
       done = True
@@ -158,7 +158,7 @@ def inventory(player, room, containers, items):
   
           currentoutputmenu = currentoutputmenu.replace("-inventory-", "-{inventory}-").replace("-chest-", "-{chest}-").replace("-ground-", "-{ground}-")
   
-          currentoutputmenu += "Where to move " + items[item[1]]["name"] + "?"
+          currentoutputmenu += "Where to move " + game.items[item[1]]["name"] + "?"
   
           if maxbaglength != None:
             reglist = [["inventory"], ["chest"], ["ground"]]
@@ -181,33 +181,34 @@ def inventory(player, room, containers, items):
           while moveMenu.value == None:
             utils.clear()
             print(moveMenu.get())
+
+            keypress = utils.getch(game.term)
         
-            moveMenu.registerkey(utils.getch(": "), {"w":"up", "s":"down", "a":"left", "d":"right", "":"enter", " ":"enter",})
-          
+            moveMenu.registerkey(keypress)
           
           if moveMenu.value == "inventory":
             if item[0] == "gnd":
-              player["inventory"].append(item[1])
-              player["world"][player["location"]].remove(item[1])
+              game.player["inventory"].append(item[1])
+              game.player["world"][game.player["location"]].remove(item[1])
             elif item[0] == "bag":
-              player["inventory"].append(item[1])
-              player["containers"][player["location"]].remove(item[1])
+              game.player["inventory"].append(item[1])
+              game.player["containers"][game.player["location"]].remove(item[1])
           elif moveMenu.value == "chest":
             if maxbaglength != None:
               if item[0] == "inv":
-                player["containers"][player["location"]].append(item[1])
-                player["inventory"].remove(item[1])
+                game.player["containers"][game.player["location"]].append(item[1])
+                game.player["inventory"].remove(item[1])
               elif item[0] == "gnd":
-                player["containers"][player["location"]].append(item[1])
-                player["world"][player["location"]].remove(item[1])
+                game.player["containers"][game.player["location"]].append(item[1])
+                game.player["world"][game.player["location"]].remove(item[1])
           elif moveMenu.value == "ground":
             if item[0] == "inv":
-              player["world"][player["location"]].append(item[1])
-              player["inventory"].remove(item[1])
+              game.player["world"][game.player["location"]].append(item[1])
+              game.player["inventory"].remove(item[1])
             elif item[0] == "bag":
-              player["world"][player["location"]].append(item[1])
-              player["containers"][player["location"]].remove(item[1])
-      elif keypress == "`":
+              game.player["world"][game.player["location"]].append(item[1])
+              game.player["containers"][game.player["location"]].remove(item[1])
+      elif keypress in const.EXIT_KEYS:
         done = True
       else:
-        itemproperties(item[1], items, player)
+        itemproperties(item[1], game)

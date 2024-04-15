@@ -8,150 +8,169 @@ import hurricane.data.colors as colors
 
 import copy
 
-def say(player, saylist):
-  for i in saylist:
-    if utils.parsecondition(i[0], player):
-      utils.typing(i[1], player)
+class Game(object):
+  def __init__(self, player, term, items, npcs, world, quests, containers, userdata):
+    self.player = player
+    self.term = term
+    self.items = items
+    self.npcs = npcs
+    self.world = world
+    self.quests = quests
+    self.containers = containers
+    self.userdata = userdata
+
+    self.c = colors.getcolors()
+
+    while True:
+      self.loop()
+
+  def say(self, saylist):
+    for i in saylist:
+      if utils.parsecondition(i[0], self.player):
+        utils.typing(i[1], self.term, self.player)
+        utils.wait()
+        return
+
+  def unlockchest(self):
+    utils.clear()
+    if utils.parsecondition(self.cr["container"]["condition"], self.player):
+      if not self.player["location"] in self.player["containers"]:
+        self.say(self.cr["container"]["say"])
+        container = self.containers[self.player["location"]]
+        self.player["containers"][self.player["location"]] = copy.deepcopy(container)
+      else: # below may want to be taken out
+        utils.typing("The chest is already unlocked", self.player)
+        utils.wait()
+        
+      scripts.inventory(self)
+
+  def dostables(self):  
+    if len(self.player["stables"]) == 0: # there are no stables to travel to
+      print("There are no stables to travel to yet")
       utils.wait()
       return
-
-def unlockchest(player, room, containers, items):
-  utils.clear()
-  if utils.parsecondition(room["container"]["condition"], player):
-    if not player["location"] in player["containers"]:
-      say(player, room["container"]["say"])
-      player["containers"][player["location"]] = copy.deepcopy(containers[player["location"]])
-    else: # below may want to be taken out
-      utils.typing("The chest is already unlocked", player)
-      utils.wait()
-      
-    scripts.inventory(player, room, containers, items)
-
-def dostables(player, world):
-  c = colors.getcolors()
-
-  if len(player["stables"]) == 0: # there are no stables to travel to
-    print("There are no stables to travel to yet")
-    utils.wait()
-    return
-  
-  roomname = world[player["location"]]["name"]
-  menustring = " Use " + roomname + " Stables \n"
-  menustring += "==============" + "="*len(roomname) + "\n"
-
-  reglist = []
-  dislist = []
-  
-  for stablelocation in player["stables"]:
-    if stablelocation != player["location"]:
-      menustring += "Travel to '{" + stablelocation + "}'\n"
-      reglist.append(stablelocation)
-      dislist.append(world[stablelocation]["name"])
-    else:
-      menustring += "Travel to '" + world[stablelocation]["name"] + "' " + c["green"] + "(HERE)\n" + c["reset"]
-  
-  stableMenu = menu.menu(menustring, [reglist], [dislist])
-  keypress = None
-
-  stableMenu.find()
-  
-  while stableMenu.value == None:
-    utils.clear()
-    print(stableMenu.get())
-
-    keypress = utils.getch(": ")
     
-    stableMenu.registerkey(keypress, {"w":"up", "s":"down", "a":"left", "d":"right", "":"enter", "`":"enter"})
+    roomname = self.world[self.player["location"]]["name"]
+    menustring = " Use " + roomname + " Stables \n"
+    menustring += "==============" + "="*len(roomname) + "\n"
   
-  place = stableMenu.value
-  if keypress == "`":
-    return None # if exited the menu
-  elif place == False:
-    return None # if nothing was selected
-  else:
-    utils.clear()
-    player["location"] = place
-    utils.typing("Travling to " + world[place]["name"], player, speed=.3)
-
-def seequests(player, quests):
-  donequests = ""
-  notquests = ""
-  
-  if len(player["quests"]) > 0:
-    for qid in player["quests"]:
-      if player["quests"][qid] == len(quests[qid]["points"]): # check if the quest is compleated (1 past length of quest list)
-        donequests += utils.wrapprint(quests[qid]["name"] + ": " + utils.replaceinstrings(quests[qid]["done"], player) + "\n\n", const.WIDTH)
+    reglist = []
+    dislist = []
+    
+    for stablelocation in self.player["stables"]:
+      if stablelocation != self.player["location"]:
+        menustring += "Travel to '{" + stablelocation + "}'\n"
+        reglist.append(stablelocation)
+        dislist.append(self.world[stablelocation]["name"])
       else:
-        notquests += utils.wrapprint(quests[qid]["name"] + ": " + utils.replaceinstrings(quests[qid]["points"][player["quests"][qid]], player) + "\n\n", const.WIDTH)
-  else:
-    notquests += "No quests yet, go explore!"
-
-  utils.clear()
-  print(" Current Quests")
-  print("================")
-  print(notquests, end="", flush=True)
-
-  if donequests != "":
-    print("")
-    print(" Compleated Quests")
-    print("===================")
-    print(donequests, end="", flush=True)
+        menustring += "Travel to '" + self.world[stablelocation]["name"] + "' "
+        menustring += self.c["green"] + "(HERE)\n" + self.c["reset"]
+    
+    stableMenu = menu.menu(menustring, [reglist], [dislist])
+    keypress = None
   
-  utils.wait()
+    stableMenu.find()
+    
+    while stableMenu.value == None:
+      utils.clear()
+      print(stableMenu.get())
+  
+      keypress = utils.getch(self.term)
+      
+      stableMenu.registerkey(keypress)
+    
+    place = stableMenu.value
+    if keypress == "`":
+      return None # if exited the menu
+    elif place == False:
+      return None # if nothing was selected
+    else:
+      utils.clear()
+      self.player["location"] = place
+      utils.typing("Travling to " + self.world[place]["name"], self.term, self.player, speed=.3)
 
-def game(player, items, npcs, world, quests, containers, userdata):
-  while True:
+  def seequests(self):
+    done_quests = ""
+    not_quests = ""
+    
+    if len(self.player["quests"]) > 0:
+      for qid in self.player["quests"]:
+        # check if the quest is compleated (1 past length of quest list)
+        if self.player["quests"][qid] == len(self.quests[qid]["points"]): 
+          done_quests += utils.wrapprint(self.quests[qid]["name"] + ": " 
+                         + utils.replaceinstrings(self.quests[qid]["done"], self.player)
+                         + "\n\n", const.WIDTH)
+        else:
+          replaced_string = self.quests[qid]["points"][self.player["quests"][qid]]
+          not_quests += utils.wrapprint(self.quests[qid]["name"] + ": " 
+                        + utils.replaceinstrings(replaced_string, self.player)
+                        + "\n\n", const.WIDTH)
+    else:
+      not_quests += "No quests yet, go explore!"
+  
     utils.clear()
-    cr = world[player["location"]]
-
-    # last part of logic will not run the random function if the room
-    # has NOT changed
-    currentnpcs = utils.npcs(player, npcs)
+    print(" Current Quests")
+    print("================")
+    print(not_quests, end="", flush=True)
   
-    player["moves"] += 1
+    if done_quests != "":
+      print("")
+      print(" Compleated Quests")
+      print("===================")
+      print(done_quests, end="", flush=True)
+    
+    utils.wait()
 
-    savegame.save(userdata[0], userdata[1], player)
+  def loop(self):
+    utils.clear()
+    self.cr = self.world[self.player["location"]]
 
-    if "introtext" in cr:
-      say(player, cr["introtext"])
+    currentnpcs = utils.npcs(self)
+  
+    self.player["moves"] += 1
 
-    if "do" in cr:
-      for i in cr["do"]:
-        if utils.parsecondition(i[0], player):
-          utils.parsedo(i[1], player)
+    savegame.save(self.userdata[0], self.userdata[1], self.player)
+
+    if "introtext" in self.cr:
+      self.say(self.cr["introtext"])
+
+    if "do" in self.cr:
+      for i in self.cr["do"]:
+        if utils.parsecondition(i[0], self.player):
+          utils.parsedo(i[1], self.player)
           break
   
-    if not player["location"] in player["world"]:
-      player["world"][player["location"]] = []
+    if not self.player["location"] in self.player["world"]:
+      self.player["world"][self.player["location"]] = []
     
     utils.clear()
     
-    print(" " + cr["name"])
-    print("="*(len(cr["name"])+2) + "\n")
+    print(" " + self.cr["name"])
+    print("="*(len(self.cr["name"])+2) + "\n")
 
     outtext = ""
 
-    outtext += cr["desc.long"] + ". "
+    outtext += self.cr["desc.long"] + ". "
 
-    if "store" in cr:
-      if utils.parsecondition(cr["store"]["condition"], player):
-        outtext += cr["store"]["desc"] + ". "
+    if "store" in self.cr:
+      if utils.parsecondition(self.cr["store"]["condition"], self.player):
+        outtext += self.cr["store"]["desc"] + ". "
 
-    if "stable" in cr:
-      if not player["location"] in player["stables"]:
-        player["stables"].append(player["location"])
-      outtext += cr["stable"] + ". "
+    if "stable" in self.cr:
+      if not self.player["location"] in self.player["stables"]:
+        self.player["stables"].append(self.player["location"])
+      outtext += self.cr["stable"] + ". "
 
-    if "container" in cr:
-      outtext += cr["container"]["desc"] + ". "
+    if "container" in self.cr:
+      outtext += self.cr["container"]["desc"] + ". "
 
     for a_npc in currentnpcs:
       for obps in currentnpcs[a_npc][0]["observation"]:
-        if utils.parsecondition(obps[0], player):
+        if utils.parsecondition(obps[0], self.player):
           outtext += obps[1] + ". "
           break
 
-    grounditems = player["world"][player["location"]]
+    grounditems = self.player["world"][self.player["location"]]
     preface = ""
     postface = ""
 
@@ -168,82 +187,85 @@ def game(player, items, npcs, world, quests, containers, userdata):
       else:
         postface = ""
         
-      outtext += preface + items[grounditems[gitem]]["name"] + postface
+      outtext += preface + self.items[grounditems[gitem]]["name"] + postface
 
-    newouttext = utils.wrapprint(utils.replaceinstrings(outtext, player), const.WIDTH)
+    newouttext = utils.wrapprint(utils.replaceinstrings(outtext, self.player), const.WIDTH)
         
     print(newouttext + "\n")
   
     print("You can go:")
   
-    for direction in cr["dirs"]:
-      dirctn = cr["dirs"][direction]
-      print("  " + direction.capitalize() + ": " + world[dirctn["dest"]]["name"] + " - " + world[dirctn["dest"]]["desc.short"]) # add in the locked door
+    for direction in self.cr["dirs"]:
+      dirctn = self.cr["dirs"][direction]
+      print("  " + direction.capitalize() + ": " + self.world[dirctn["dest"]]["name"] + " - " 
+            + self.world[dirctn["dest"]]["desc.short"]) # add in the locked door
   
     print("")
     
     userinput = input(": ")
 
-    command = cmds.parse(userinput, player, currentnpcs)
+    command = cmds.parse(userinput, self.player, currentnpcs)
 
     if command[0] == "EXT":
       utils.clear()
       print("Are you sure you want to exit?")
-      if utils.prompt():
+      if utils.prompt(self.term):
         return # exit gameloop
     elif command[0] == "NAC":
-      utils.typing("unknown command", player)
+      utils.typing("unknown command", self.player)
       utils.wait()
     elif command[0] == "go":
       print()
-      if command[1] in cr["dirs"]:
-        dr = cr["dirs"][command[1]]
-        if utils.parsecondition(dr["condition"], player):
-          say(player, dr["say"])
-          utils.parsedo(dr["do"], player)
-          player["location"] = dr["dest"]
+      if command[1] in self.cr["dirs"]:
+        dr = self.cr["dirs"][command[1]]
+        if utils.parsecondition(dr["condition"], self.player):
+          self.say(dr["say"])
+          utils.parsedo(dr["do"], self.player)
+          self.player["location"] = dr["dest"]
         else:
-          say(player, dr["say"])
+          self.say(dr["say"])
       else:
-        utils.typing("You cannot go that way", player)
+        utils.typing("You cannot go that way", self.player)
         utils.wait()
     elif command[0] == "inventory":
-      scripts.inventory(player, cr, containers, items)
+      scripts.inventory(self)
     elif command[0] == "unlock":
-      if "container" in cr:
-        unlockchest(player, cr, containers, items)
+      if "container" in self.cr:
+        self.unlockchest()
+        # only one chest per room
+        # so this will always refer to one chest
       else:
-        utils.typing("There is nothing to open here", player)
+        utils.typing("There is nothing to open here", self.player)
         utils.wait()
     elif command[0] == "talk":
       if command[1] == None:
         if len(currentnpcs) != 0:
           # maybe implement a better way to do multi npc
-          utils.typing("To many options to talk to, be more specific", player)
+          utils.typing("To many options to talk to, be more specific", self.player)
           utils.wait()
         else:
-          utils.typing("Who are you talking to?", player)
+          utils.typing("Who are you talking to?", self.player)
           utils.wait()
       else:
-        scripts.dialouge(currentnpcs[command[1]], player, quests)
+        scripts.dialouge(currentnpcs[command[1]], self)
     elif command[0] == "quests":
-      seequests(player, quests)
+      self.seequests()
     elif command[0] == "stable":
-      dostables(player, world)
+      self.dostables()
     elif command[0] == "store":
-      if "store" in cr:
-        if utils.parsecondition(cr["store"]["condition"], player):
+      if "store" in self.cr:
+        if utils.parsecondition(self.cr["store"]["condition"], self.player):
           storedict = {
-            "pricemultiplier" : cr["store"]["multiplier"],
+            "pricemultiplier" : self.cr["store"]["multiplier"],
             "items" : []
           }
-          for i in cr["store"]["items"]:
-            if utils.parsecondition(i[0], player):
+          for i in self.cr["store"]["items"]:
+            if utils.parsecondition(i[0], self.player):
               storedict["items"].append(i[1])
-          scripts.storemenu(player, items, storedict)
+          scripts.storemenu(storedict, self)
         else:
-          utils.typing("The store seems to be closed", player)
+          utils.typing("The store seems to be closed", self.player)
           utils.wait()
       else:
-        utils.typing("There is not store here", player)
+        utils.typing("There is not store here", self.player)
         utils.wait()

@@ -72,7 +72,22 @@ class menu(object):
       self.value = False
       self.niceValue = False
 
-  def registerkey(self, key, keylayout={"w":"up", "s":"down", "a":"left", "d":"right", "":"enter"}):
+  def registerkey(self, key, keylayout=None):
+    if keylayout == None:
+      keylayout = {
+        "w": "up",
+        "s": "down",
+        "a": "left",
+        "d": "right",
+        "KEY_UP": "up",
+        "KEY_DOWN": "down",
+        "KEY_LEFT": "left",
+        "KEY_RIGHT": "right",
+        "KEY_ENTER": "enter",
+        "KEY_ESC": "enter",
+        "": "enter",
+        " ": "enter"
+      }
     if key in keylayout:
       if keylayout[key] == "up":
         self.up()

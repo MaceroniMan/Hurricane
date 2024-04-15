@@ -1,5 +1,5 @@
-#import hurricane.data.htf as htf
 import json
+import os
 
 # room key explinations:
 """
@@ -51,9 +51,18 @@ maind = {
 
 print("encoding")
 
+text = json.dumps(maind).encode("utf-8")
+
+print("total length: " + str(round(len(text)/1024, 2)) + "kb")
+
 import lzma
 with lzma.open("hurricane/data/assets.dat", "w") as f:
-  f.write(json.dumps(maind).encode("utf-8"))
+  f.write(text)
+
+file_size = os.stat("hurricane/data/assets.dat").st_size/1024
+
+print("file length:  " + str(round(file_size, 2)) + "kb")
+
 
 #htf.encode(json.dumps(maind), KEY, "hurricane/data/assets.dat")
 

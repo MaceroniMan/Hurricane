@@ -1,12 +1,11 @@
-import os, time, select, sys, random
-import hurricane.data.getch
+import os, time, select, sys, random, blessed
 import hurricane.data.colors
 import hurricane.menu as menu
 
 def wait():
   input("...")
 
-def prompt():
+def prompt(term):
   invMenu = menu.menu("{yes}   {no}", [["yes"], ["no"]], [["Yes"], ["No"]])
 
   invMenu.find()
@@ -14,7 +13,11 @@ def prompt():
   while invMenu.value == None:
     print("\r" + invMenu.get(), end="")
 
-    keypress = getch("")
+    code = term.inkey()
+    if code.is_sequence:
+      keypress = code.code
+    else:
+      keypress = code
 
     invMenu.registerkey(keypress)
 
@@ -22,9 +25,6 @@ def prompt():
     return True
   else:
     return False
-
-def getch(p=">> "):
-  return hurricane.data.getch.getch(p)
 
 def clear():
   if os.name == 'nt':
@@ -64,7 +64,35 @@ def replaceinstrings(text, player):
   text = text.replace("}", c["reset"])
   return text
 
-def typing(words, player=None, speed=0.03, skip=True):
+def getch(term):
+  with term.cbreak():
+    code = term.inkey()
+    if code.is_sequence:
+      keypress = code.name
+    else:
+      keypress = code
+  return keypress
+
+def typing(words, term, player=None, speed=.03, skip=True):
+  if player != None:
+    words = replaceinstrings(words, player)
+  newlines = 1
+  
+  for char in words:
+    val = term.inkey(timeout=speed)
+    if skip and val:
+      print("\033[F"*newlines + words.replace("`", "\n"))
+      return True
+    if char == "`":
+      input("")
+      newlines += 1
+    else:
+      sys.stdout.write(char)
+      sys.stdout.flush()
+  print("")
+  return False
+
+def old_typing(words, player=None, speed=0.03, skip=True):
   if player != None:
     words = replaceinstrings(words, player)
   inputs = 1
@@ -93,22 +121,22 @@ def typing(words, player=None, speed=0.03, skip=True):
 }
 """
 
-def npcs(player, npcs):
+def npcs(game):
   returnnpcs = {}
-  for npc in npcs:
+  for npc in game.npcs:
     done = False
-    for room in npcs[npc]:
+    for room in game.npcs[npc]:
       roomvalue = None
-      if room == player["location"]:
-        if isinstance(npcs[npc][room], str):
-          roomvalue = npcs[npc][room]
+      if room == game.player["location"]:
+        if isinstance(game.npcs[npc][room], str):
+          roomvalue = game.npcs[npc][room]
         else:
           roomvalue = room
       
       if roomvalue != None:
-        for condition in npcs[npc][roomvalue]["conditions"]:
-          if parsecondition(condition[0], player):
-            returnnpcs[npc] = [npcs[npc][roomvalue], condition[1]]
+        for condition in game.npcs[npc][roomvalue]["conditions"]:
+          if parsecondition(condition[0], game.player):
+            returnnpcs[npc] = [game.npcs[npc][roomvalue], condition[1]]
             done = True
             break
 

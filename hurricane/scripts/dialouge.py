@@ -1,12 +1,8 @@
 import hurricane.menu as menu
 import hurricane.utils as utils
 import hurricane.const as const
-import hurricane.scripts as scripts
 
-import copy
-import math
-
-def dialouge(npc, player, quests):
+def dialouge(npc, game):
   dialougedict = npc[0]["dialouges"]
   talklocation = npc[1]
   starttext = ""
@@ -34,22 +30,22 @@ def dialouge(npc, player, quests):
     
     for person_index in range(len(dialouges)):
       utils.clear()
-      print(utils.replaceinstrings(beforetext, player), end="", flush=True)
+      print(utils.replaceinstrings(beforetext, game.player), end="", flush=True)
       
       person = dialouges[person_index]
       text = utils.wrapprint('  "' + person[1].replace("`", '"`  "') + '"', const.WIDTH, "`", "\n   ")
       print(person[0] + ": ", end="\n", flush=True)
-      doneskip = utils.typing(text, player)
+      doneskip = utils.typing(text, game.term, game.player)
       if doneskip:
         utils.clear()
-        print(utils.replaceinstrings(beforetext, player), end="", flush=True)
-        print(person[0] + ": \n" + utils.replaceinstrings(text, player).replace("`", "\n"), end="", flush=True)
+        print(utils.replaceinstrings(beforetext, game.player), end="", flush=True)
+        print(person[0] + ": \n" + utils.replaceinstrings(text, game.player).replace("`", "\n"), end="", flush=True)
       
       beforetext += person[0] + ": \n" + text.replace("`", "\n") + "\n\n"
       if person_index+1 != len(dialouges):
         input()
       
-    doext = utils.parsedo(dialougecurrent["do"], player)
+    doext = utils.parsedo(dialougecurrent["do"], game.player)
 
     if doext == "EXT":
       input()
@@ -57,12 +53,13 @@ def dialouge(npc, player, quests):
     elif doext != "NA":
       input() # add a extra pause in flow
       utils.clear()
-      if player["quests"][doext] == 0: # if the quest was just given
-        utils.typing("Quest '" + quests[doext]["name"] + "' received", player, speed=.1)
-      elif player["quests"][doext] == len(quests[doext]["points"]): # if the quest was just compleated (1 past length of quest list)
-        utils.typing("Quest '" + quests[doext]["name"] + "' compleated", player, speed=.1)
+      if game.player["quests"][doext] == 0: # if the quest was just given
+        utils.typing("Quest '" + game.quests[doext]["name"] + "' received", game.term, game.player, speed=.1)
+      # if the quest was just compleated (1 past length of quest list)
+      elif game.player["quests"][doext] == len(game.quests[doext]["points"]): 
+        utils.typing("Quest '" + game.quests[doext]["name"] + "' compleated", game.term, game.player, speed=.1)
       else:
-        utils.typing("Quest '" + quests[doext]["name"] + "' advanced", player, speed=.1)
+        utils.typing("Quest '" + game.quests[doext]["name"] + "' advanced", game.term, game.player, speed=.1)
       utils.wait()
     
     if len(dialougecurrent["options"]) == 0:
@@ -74,21 +71,23 @@ def dialouge(npc, player, quests):
       optionlist = [[]]
     
       for option in dialougecurrent["options"]:
-        if utils.parsecondition(option[0], player):
+        if utils.parsecondition(option[0], game.player):
           # added the dollar sign so that if two options went to the same place
           # they would still be different selections
           optionstring += "{" + option[1]["goto"] + "$" + option[1]["text"] + "}\n"
           nicelist[0].append(option[1]["text"])
           optionlist[0].append(option[1]["goto"] + "$" + option[1]["text"])
 
-      beforetext = utils.replaceinstrings(beforetext, player).replace("`", "\n")
+      beforetext = utils.replaceinstrings(beforetext, game.player).replace("`", "\n")
       dialoueMenu = menu.menu(beforetext + optionstring, optionlist, nicelist)
     
       while dialoueMenu.value == None:
         utils.clear()
         print(dialoueMenu.get())
 
-        dialoueMenu.registerkey(utils.getch(""))
+        keypress = utils.getch(game.term)
+
+        dialoueMenu.registerkey(keypress)
 
       talklocation = dialoueMenu.value.split("$")[0]
 
