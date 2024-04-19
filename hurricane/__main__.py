@@ -1,12 +1,12 @@
 from hurricane.const import VERSION
 
 import hurricane.data.tutorial as tutorial
+import hurricane.terminal as terminal
 import hurricane.savegame as savegame
 import hurricane.game as game
 import hurricane.utils as utils
 import hurricane.menu as menu
 
-import blessed
 import lzma
 import json
 import sys
@@ -14,7 +14,7 @@ import os
 
 def startmenu(assets):
   print("Loading Assets...")
-  term = blessed.Terminal()
+  term = terminal.Terminal()
   
   items = assets["items"]
   npcs = assets["npcs"]
@@ -22,76 +22,97 @@ def startmenu(assets):
   quests = assets["quests"]
   containers = assets["containers"]
 
-  action = None
-  savegameresult = ""
-  while action == None:
-    menustr = """ Hurricane - """ + VERSION + """
+  rungame = False
+  while not rungame:
+    menu_str = """ Hurricane - """ + VERSION + """
 ===================
-use keys 'w' 'a' 's' and 'd' to navigate the menu
+use wasd or arrow keys to navigate menus
 
-'{load}' ....... load a saved game
-'{start}' ...... start a new game
+'{saves}' ...... load or create saved games
 '{tutorial}' ... start a short tutorial
 '{exit}' ....... exit the game"""
-    mainMenu = menu.menu(menustr, [["load", "start", "tutorial", "exit"]])
+    main_menu = menu.menu(menu_str, [["saves", "tutorial", "exit"]])
     
-    while mainMenu.value == None:
+    while main_menu.value == None:
       utils.clear()
-      print(mainMenu.get())
-
+      print(main_menu.get())
       keypress = utils.getch(term)
-
-      mainMenu.registerkey(keypress)
+      main_menu.registerkey(keypress)
     
-    menuinput = mainMenu.value
-    if menuinput == "load":
-      utils.clear()
-      print(" Load a Existing Saved Game")
-      print("============================")
-      username = input("saved game name: ")
-      password = input("password: ")
-      if username == "":
-        action = None
-        savegameresult = None
+    if main_menu.value == "saves":
+      print("Loading Saves...")
+      loaded_saves = savegame.get_all_saves()
+      load_menu_str = " Savegame Manager\n==================\n"
+      load_menu_str += "{new}      {back}\n\n"
+
+      cnt = 1
+      for saves in loaded_saves:
+        load_menu_str += str(cnt) + ". {" + saves[0] + "}\n"
+        cnt += 1
+
+      rungame = False
+      load_save_menu = menu.menu(load_menu_str, 
+          [["new"] + [x[0] for x in loaded_saves], ["back"]], 
+          [["New Game"] + ["Load '" + x[1].title() + "'" for x in loaded_saves], ["Back"]])
+      
+      while load_save_menu.value == None:
+        utils.clear()
+        print(load_save_menu.get())
+        keypress = utils.getch(term)
+        load_save_menu.registerkey(keypress)
+        
+      if load_save_menu.value == "new":
+        save_game_name = terminal.cinput(term, "new save game name: ")
+        if save_game_name is None:
+          rungame = False
+          continue
+
+        save_game_name = save_game_name.lower()          
+        if save_game_name in [x[1] for x in loaded_saves]:
+          if not utils.prompt(term, "save game already in use, overwrite? "):
+            # if no overwrite is wanted
+            rungame = False
+            continue
+        
+        password = terminal.cinput(term, "save game password: ")
+        if password is None:
+          rungame = False
+          continue
+
+        new_file_path = savegame.create(save_game_name, password)
+        save_game_manager = savegame.SaveMngr(new_file_path, password)
+        save_game_manager.load()
+        
+      elif load_save_menu.value == "back":
+        rungame = False
+        continue
       else:
-        savegameresult = savegame.load(username, password)
-        if savegameresult == "FILE":
-          print("that saved gamed does not exist")
-          utils.wait()
-          action = None
-          savegameresult = None
-        elif savegameresult == "PASS":
-          print("incorrect password for saved game")
-          utils.wait()
-          action = None
-          savegameresult = None
+        password = terminal.cinput(term, "password: ")
+        if password is None:
+          rungame = False
+          continue
+        
+        save_game_manager = savegame.SaveMngr(load_save_menu.value, password)
+        correct_passwd = save_game_manager.load()
+        if correct_passwd:
+          rungame = True
+          break
         else:
-          action = "continue"
-    elif menuinput == "start":
-      utils.clear()
-      print(" Create a New Saved Game")
-      print("=========================")
-      username = input("saved game name: ")
-      password = input("password: ")
-      if username == "":
-        action = None
-        savegameresult = None
-      else:
-        savegameresult = savegame.create(username, password, overwrite=False)
-        if savegameresult == "NA":
-          action = None
-          savegameresult = None
-        else:
-          action = "continue"
-    elif menuinput == "tutorial":
+          print("password incorrect")
+          rungame = False
+          continue
+
+    elif main_menu.value == "tutorial":
       tutorial.run()
-      action = None
-    elif menuinput == "exit":
+      rungame = False
+      continue
+    elif main_menu.value == "exit":
       sys.exit(0)
     else:
-      action = None
+      rungame = False
+      continue
 
-  game.Game(savegameresult, term, items, npcs, world, quests, containers, [username, password])
+  game.Game(save_game_manager, term, items, npcs, world, quests, containers)
 
 if __name__ == "__main__":
   asset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/assets.dat")

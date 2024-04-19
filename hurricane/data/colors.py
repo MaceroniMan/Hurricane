@@ -8,7 +8,7 @@ except:
 # returns a list of printable colors
 def getcolors():
 
-  raise SyntaxError("old_colors_method_called")
+  #raise SyntaxError("old_colors_method_called")
   colors = {
     "red" : "",
     "yellow" : "",

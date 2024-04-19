@@ -5,21 +5,15 @@ import hurricane.menu as menu
 def wait():
   input("...")
 
-def prompt(term):
-  invMenu = menu.menu("{yes}   {no}", [["yes"], ["no"]], [["Yes"], ["No"]])
+def prompt(term, text=""):
+  invMenu = menu.menu(text + "{yes}   {no}", [["yes"], ["no"]], [["Yes"], ["No"]])
 
   invMenu.find()
   
   while invMenu.value == None:
     print("\r" + invMenu.get(), end="")
 
-    code = term.inkey()
-    if code.is_sequence:
-      keypress = code.code
-    else:
-      keypress = code
-
-    invMenu.registerkey(keypress)
+    invMenu.registerkey(getch(term))
 
   if invMenu.value == "yes":
     return True

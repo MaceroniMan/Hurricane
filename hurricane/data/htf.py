@@ -21,7 +21,7 @@ def __pswd(word):
     numbers += str(ord(char))
   return int(numbers)
 
-def encode(text, key, filename):
+def encode(text, key):
   if type(key) == int:
     pass
   elif type(key) == str:
@@ -62,10 +62,9 @@ def encode(text, key, filename):
     newnums.append(__circleadd(ord(hash[item+placecounter]), key + textcounter, 255))
     textcounter += 1
 
-  with open(filename, 'wb') as writefile:
-    writefile.write(bytes(newnums))
+  return bytes(newnums)
 
-def decode(filename, key):
+def decode(bin_data, key):
   if type(key) == int:
     pass
   elif type(key) == str:
@@ -73,10 +72,8 @@ def decode(filename, key):
   else:
     raise TypeError("invalid key type, must be string or int")
 
-  with open(filename, 'rb') as readfile:
-    text = readfile.read()
   pswdhash = hashlib.sha512(str(key).encode()).hexdigest()
-  stringlength = len(text) - 128
+  stringlength = len(bin_data) - 128
 
   if stringlength % 128 != 0:
     chars = math.floor((stringlength) / 128) + 1
@@ -89,7 +86,7 @@ def decode(filename, key):
   charcounter = 0
   leftoff = 0
   newchars = []
-  for char in text:
+  for char in bin_data:
     leftoff += 1
     if charcounter == stringlength:
       break
@@ -102,7 +99,7 @@ def decode(filename, key):
       charcounter += 1
       counter += 1
 
-  for char2 in text[leftoff-1:]:
+  for char2 in bin_data[leftoff-1:]:
     newchars.append([1, char2])
 
   unenc = []
@@ -120,5 +117,6 @@ def decode(filename, key):
 
   realtext = ''.join(unenc)
   if not hashlib.sha512(str(realtext+str(key)).encode()).hexdigest() == newhash:
-    raise TypeError("cannot decode")
-  return realtext
+    return None
+  else:
+    return realtext
