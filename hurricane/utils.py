@@ -1,24 +1,8 @@
 import os, time, select, sys, random, blessed
 import hurricane.data.colors
-import hurricane.menu as menu
 
 def wait():
   input("...")
-
-def prompt(term, text=""):
-  invMenu = menu.menu(text + "{yes}   {no}", [["yes"], ["no"]], [["Yes"], ["No"]])
-
-  invMenu.find()
-  
-  while invMenu.value == None:
-    print("\r" + invMenu.get(), end="")
-
-    invMenu.registerkey(getch(term))
-
-  if invMenu.value == "yes":
-    return True
-  else:
-    return False
 
 def clear():
   if os.name == 'nt':
@@ -57,34 +41,6 @@ def replaceinstrings(text, player):
   text = text.replace("Y{", c["green"])
   text = text.replace("}", c["reset"])
   return text
-
-def getch(term):
-  with term.cbreak():
-    code = term.inkey()
-    if code.is_sequence:
-      keypress = code.name
-    else:
-      keypress = code
-  return keypress
-
-def typing(words, term, player=None, speed=.03, skip=True):
-  if player != None:
-    words = replaceinstrings(words, player)
-  newlines = 1
-  
-  for char in words:
-    val = term.inkey(timeout=speed)
-    if skip and val:
-      print("\033[F"*newlines + words.replace("`", "\n"))
-      return True
-    if char == "`":
-      input("")
-      newlines += 1
-    else:
-      sys.stdout.write(char)
-      sys.stdout.flush()
-  print("")
-  return False
 
 def old_typing(words, player=None, speed=0.03, skip=True):
   if player != None:

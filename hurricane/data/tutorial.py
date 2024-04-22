@@ -2,6 +2,7 @@ import hurricane.cmds as cmds
 import hurricane.utils as utils
 import hurricane.const as const
 
+# FIX THE TUTORIAL
 def run(term):
   utils.clear()
   utils.typing(utils.wrapprint("Hello and welcome to Hurricane! This is a short-interactive tutorial to show you all of the commands that can be run! Use the 'enter' key to continue when '...' shows up.", const.WIDTH), term)

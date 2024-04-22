@@ -70,7 +70,7 @@ def storemenu(storedict, game):
 
     for i in range(maxlength):
       if i < len(game.player["inventory"]):
-        extraspaces = maxinvlength-len(game.items[player["inventory"][i]]["name"])
+        extraspaces = maxinvlength-len(game.items[game.player["inventory"][i]]["name"])
         printstring += "| " + " "*(extraspaces) + "{inv$" + game.player["inventory"][i] + "$" + str(i) + "} |"
         dislist_inv.append(game.items[game.player["inventory"][i]]["name"])
         reglist_inv.append("inv$" + game.player["inventory"][i] + "$" + str(i))
@@ -107,7 +107,7 @@ def storemenu(storedict, game):
       utils.clear()
       print(invMenu.get())
 
-      keypress = utils.getch(game.term)
+      keypress = game.screen.getchar()
       
       invMenu.registerkey(keypress)
 
@@ -117,8 +117,8 @@ def storemenu(storedict, game):
     else:
       if item[0] == "sto":
         stars = game.items[item[1]]["value"] * storedict["pricemultiplier"]
-        print("Do you want to purchase a " + item[1] + " for " + str(stars) + " stars?")
-        if utils.prompt(game.term):
+        pr_text = "Do you want to purchase a " + item[1] + " for " + str(stars) + " stars?"
+        if game.screen.prompt(pr_text):
           if stars > game.player["stars"]:
             print("You do not have enough stars!")
           else:
@@ -127,16 +127,16 @@ def storemenu(storedict, game):
             print("You purchased a " + item[1] + " for " + str(stars) + " stars")
       elif item[0] == "inv":
         stars = game.items[item[1]]["value"]
-        print("Do you want to sell a " + item[1] + " for " + str(stars) + " stars?")
-        if utils.prompt(game.term):
+        pr_text = "Do you want to sell a " + item[1] + " for " + str(stars) + " stars?"
+        if game.screen.prompt(pr_text):
           print("You sold a " + item[1] + " for " + str(stars) + " stars")
           game.player["stars"] += stars
           game.player["inventory"].remove(item[1])
           buyback.append(item[1])
       elif item[0] == "buy":
         stars = game.items[item[1]]["value"]
-        print("Do you want to purchase a " + item[1] + " for " + str(stars) + " stars?")
-        if utils.prompt(game.term):
+        pr_text = "Do you want to purchase a " + item[1] + " for " + str(stars) + " stars?"
+        if game.screen.prompt(pr_text):
           if stars > game.player["stars"]:
             print("You do not have enough stars!")
           else:

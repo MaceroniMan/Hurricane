@@ -14,7 +14,7 @@ import os
 
 def startmenu(assets):
   print("Loading Assets...")
-  term = terminal.Terminal()
+  screen = terminal.Terminal()
   
   items = assets["items"]
   npcs = assets["npcs"]
@@ -36,7 +36,7 @@ use wasd or arrow keys to navigate menus
     while main_menu.value == None:
       utils.clear()
       print(main_menu.get())
-      keypress = utils.getch(term)
+      keypress = screen.getchar()
       main_menu.registerkey(keypress)
     
     if main_menu.value == "saves":
@@ -58,36 +58,39 @@ use wasd or arrow keys to navigate menus
       while load_save_menu.value == None:
         utils.clear()
         print(load_save_menu.get())
-        keypress = utils.getch(term)
+        keypress = screen.getchar()
         load_save_menu.registerkey(keypress)
         
       if load_save_menu.value == "new":
-        save_game_name = terminal.cinput(term, "new save game name: ")
+        save_game_name = screen.cinput("new save game name: ")
         if save_game_name is None:
           rungame = False
           continue
 
         save_game_name = save_game_name.lower()          
         if save_game_name in [x[1] for x in loaded_saves]:
-          if not utils.prompt(term, "save game already in use, overwrite? "):
+          if not screen.prompt("save game already in use, overwrite? "):
             # if no overwrite is wanted
             rungame = False
             continue
         
-        password = terminal.cinput(term, "save game password: ")
+        password = screen.cinput("save game password: ")
         if password is None:
           rungame = False
           continue
 
-        new_file_path = savegame.create(save_game_name, password)
+        new_save_path = savegame.get_path(save_game_name)
         save_game_manager = savegame.SaveMngr(new_file_path, password)
-        save_game_manager.load()
+        save_game_manager.reset()
+        save_game_manager.save()
+        rungame = True
+        continue
         
       elif load_save_menu.value == "back":
         rungame = False
         continue
       else:
-        password = terminal.cinput(term, "password: ")
+        password = screen.cinput("password: ")
         if password is None:
           rungame = False
           continue
@@ -96,9 +99,10 @@ use wasd or arrow keys to navigate menus
         correct_passwd = save_game_manager.load()
         if correct_passwd:
           rungame = True
-          break
+          continue
         else:
           print("password incorrect")
+          utils.wait()
           rungame = False
           continue
 
@@ -112,7 +116,16 @@ use wasd or arrow keys to navigate menus
       rungame = False
       continue
 
-  game.Game(save_game_manager, term, items, npcs, world, quests, containers)
+  game_class = game.Game(save_game_manager,
+                         screen,
+                         items,
+                         npcs,
+                         world,
+                         quests,
+                         containers)
+
+  while True:
+    game_class.loop()
 
 if __name__ == "__main__":
   asset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/assets.dat")

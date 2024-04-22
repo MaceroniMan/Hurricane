@@ -35,7 +35,7 @@ def dialouge(npc, game):
       person = dialouges[person_index]
       text = utils.wrapprint('  "' + person[1].replace("`", '"`  "') + '"', const.WIDTH, "`", "\n   ")
       print(person[0] + ": ", end="\n", flush=True)
-      doneskip = utils.typing(text, game.term, game.player)
+      doneskip = game.screen.typing(text, game.player)
       if doneskip:
         utils.clear()
         print(utils.replaceinstrings(beforetext, game.player), end="", flush=True)
@@ -54,12 +54,12 @@ def dialouge(npc, game):
       input() # add a extra pause in flow
       utils.clear()
       if game.player["quests"][doext] == 0: # if the quest was just given
-        utils.typing("Quest '" + game.quests[doext]["name"] + "' received", game.term, game.player, speed=.1)
+        game.screen.typing("Quest '" + game.quests[doext]["name"] + "' received", game.player, speed=.1)
       # if the quest was just compleated (1 past length of quest list)
       elif game.player["quests"][doext] == len(game.quests[doext]["points"]): 
-        utils.typing("Quest '" + game.quests[doext]["name"] + "' compleated", game.term, game.player, speed=.1)
+        game.screen.typing("Quest '" + game.quests[doext]["name"] + "' compleated", game.player, speed=.1)
       else:
-        utils.typing("Quest '" + game.quests[doext]["name"] + "' advanced", game.term, game.player, speed=.1)
+        game.screen.typing("Quest '" + game.quests[doext]["name"] + "' advanced", game.player, speed=.1)
       utils.wait()
     
     if len(dialougecurrent["options"]) == 0:
@@ -85,7 +85,7 @@ def dialouge(npc, game):
         utils.clear()
         print(dialoueMenu.get())
 
-        keypress = utils.getch(game.term)
+        keypress = game.screen.getchar()
 
         dialoueMenu.registerkey(keypress)
 

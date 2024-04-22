@@ -1,6 +1,6 @@
 import hurricane.menu as menu
 import hurricane.utils as utils
-import hurricane.const as const
+from hurricane.const import EXIT_KEYS, ENTER_KEYS
 
 import copy
 import math
@@ -8,9 +8,9 @@ import math
 def itemproperties(item, game):
   itemprop = game.items[item]
   if itemprop["value"] <= 1:
-    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth almost nothing", game.term, game.player)
+    game.screen.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth almost nothing", game.player)
   else:
-    utils.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth maybe " + str(itemprop["value"]) + " stars.", game.term, game.player)
+    game.screen.typing("On closer examination, it appears to be " + itemprop["desc"] + ". Worth maybe " + str(itemprop["value"]) + " stars.", game.player)
   utils.wait()
 
 def inventory(game):
@@ -131,84 +131,84 @@ def inventory(game):
       dislist = [dislist_inv, dislist_gnd]
 
     
-    invMenu = menu.menu(printstring, reglist, dislist)
+    inv_menu = menu.menu(printstring, reglist, dislist)
     keypress = None
 
-    invMenu.find()
+    inv_menu.find()
 
     currentoutputmenu = ""
     
-    while invMenu.value == None:
+    while inv_menu.value == None:
       utils.clear()
-      currentoutputmenu = invMenu.get()
+      currentoutputmenu = inv_menu.get()
       print(currentoutputmenu)
 
-      keypress = utils.getch(game.term)
+      keypress = game.screen.getchar()
       
-      invMenu.registerkey(keypress)
+      inv_menu.registerkey(keypress)
 
-    if invMenu.value == False: # if the inventory is empty
+    if inv_menu.value == False: # if the inventory is empty
       done = True
-    else:
-      item = invMenu.value.split("$")
-      if keypress == " ":
-        movedone = False
-        while not movedone:
-          movedone = True # will set as false when moving items is done
-  
-          currentoutputmenu = currentoutputmenu.replace("-inventory-", "-{inventory}-").replace("-chest-", "-{chest}-").replace("-ground-", "-{ground}-")
-  
-          currentoutputmenu += "Where to move " + game.items[item[1]]["name"] + "?"
-  
-          if maxbaglength != None:
-            reglist = [["inventory"], ["chest"], ["ground"]]
-          else:
-            reglist = [["inventory"], ["ground"]]
-          
-          moveMenu = menu.menu(currentoutputmenu, reglist)
-  
-          # autodefault menu to the current place
-          findelement = None
-          if item[0] == "gnd":
-            findelement = "ground"
-          elif item[0] == "bag":
-            findelement = "chest"
-          elif item[0] == "inv":
-            findelement = "inventory"
-          
-          moveMenu.find(findelement)
-      
-          while moveMenu.value == None:
-            utils.clear()
-            print(moveMenu.get())
+    elif inv_menu.prev_key in EXIT_KEYS:
+      done = True
+    elif inv_meni.prev_key in ENTER_KEYS:
+      item = inv_menu.value.split("$")
+      itemproperties(item[1], game)
+    elif inv_menu.prev_key == " ":
+      item = inv_menu.value.split("$")
+      movedone = False
+      while not movedone:
+        movedone = True # will set as false when moving items is done
 
-            keypress = utils.getch(game.term)
+        currentoutputmenu = currentoutputmenu.replace("-inventory-", "-{inventory}-").replace("-chest-", "-{chest}-").replace("-ground-", "-{ground}-")
+
+        currentoutputmenu += "Where to move " + game.items[item[1]]["name"] + "?"
+
+        if maxbaglength != None:
+          reglist = [["inventory"], ["chest"], ["ground"]]
+        else:
+          reglist = [["inventory"], ["ground"]]
         
-            moveMenu.registerkey(keypress)
-          
-          if moveMenu.value == "inventory":
-            if item[0] == "gnd":
-              game.player["inventory"].append(item[1])
-              game.player["world"][game.player["location"]].remove(item[1])
-            elif item[0] == "bag":
-              game.player["inventory"].append(item[1])
-              game.player["containers"][game.player["location"]].remove(item[1])
-          elif moveMenu.value == "chest":
-            if maxbaglength != None:
-              if item[0] == "inv":
-                game.player["containers"][game.player["location"]].append(item[1])
-                game.player["inventory"].remove(item[1])
-              elif item[0] == "gnd":
-                game.player["containers"][game.player["location"]].append(item[1])
-                game.player["world"][game.player["location"]].remove(item[1])
-          elif moveMenu.value == "ground":
+        moveMenu = menu.menu(currentoutputmenu, reglist)
+
+        # autodefault menu to the current place
+        findelement = None
+        if item[0] == "gnd":
+          findelement = "ground"
+        elif item[0] == "bag":
+          findelement = "chest"
+        elif item[0] == "inv":
+          findelement = "inventory"
+        
+        moveMenu.find(findelement)
+    
+        while moveMenu.value == None:
+          utils.clear()
+          print(moveMenu.get())
+
+          keypress = game.screen.getchar()
+      
+          moveMenu.registerkey(keypress)
+        
+        if moveMenu.value == "inventory":
+          if item[0] == "gnd":
+            game.player["inventory"].append(item[1])
+            game.player["world"][game.player["location"]].remove(item[1])
+          elif item[0] == "bag":
+            game.player["inventory"].append(item[1])
+            game.player["containers"][game.player["location"]].remove(item[1])
+        elif moveMenu.value == "chest":
+          if maxbaglength != None:
             if item[0] == "inv":
-              game.player["world"][game.player["location"]].append(item[1])
+              game.player["containers"][game.player["location"]].append(item[1])
               game.player["inventory"].remove(item[1])
-            elif item[0] == "bag":
-              game.player["world"][game.player["location"]].append(item[1])
-              game.player["containers"][game.player["location"]].remove(item[1])
-      elif keypress in const.EXIT_KEYS:
-        done = True
-      else:
-        itemproperties(item[1], game)
+            elif item[0] == "gnd":
+              game.player["containers"][game.player["location"]].append(item[1])
+              game.player["world"][game.player["location"]].remove(item[1])
+        elif moveMenu.value == "ground":
+          if item[0] == "inv":
+            game.player["world"][game.player["location"]].append(item[1])
+            game.player["inventory"].remove(item[1])
+          elif item[0] == "bag":
+            game.player["world"][game.player["location"]].append(item[1])
+            game.player["containers"][game.player["location"]].remove(item[1])

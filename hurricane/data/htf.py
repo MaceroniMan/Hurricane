@@ -116,6 +116,7 @@ def decode(bin_data, key):
     textcounter += 1
 
   realtext = ''.join(unenc)
+
   if not hashlib.sha512(str(realtext+str(key)).encode()).hexdigest() == newhash:
     return None
   else:

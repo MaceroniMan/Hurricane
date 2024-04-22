@@ -1,6 +1,7 @@
 import hurricane.data.htf as htf
 from hurricane.const import SAVE_FOLDER_NAME
 import json
+import copy
 import os
 
 BASEPLAYER = {
@@ -21,19 +22,30 @@ class SaveMngr(object):
   def __init__(self, save_file_path, password):
     self.save_file_path = save_file_path
     self.password = password
-    self.dta = {}
+    self.data = {}
 
   def load(self):
     with open(self.save_file_path, "rb") as file:
       file_data = file.read()
     
-    self.dta = json.loads(htf.decode(file_data[4:], self.password))
+    res = htf.decode(file_data[4:], self.password)
+
+    if res is None:
+      return False
+    else:
+      self.data = json.loads(res)
+      return True
 
   def save(self):
-    save_file_data = htf.encode(json.dumps(self.dta), self.password)
+    save_file_data = htf.encode(json.dumps(self.data), self.password)
+
     with open(self.save_file_path, "wb") as file:
       file.write(b"HGSF")
       file.write(save_file_data)
+
+  def reset(self):
+    self.data = copy.deepcopy(BASEPLAYER)
+    self.data["name"] = input("charecter name? ").title()
     
 def get_all_saves():
   cur_path = os.getcwd()
@@ -59,11 +71,3 @@ def get_path(save_file_name):
   if not os.path.exists(save_path):
     os.mkdir(save_path)
   return os.path.join(save_path, save_file_name)
-
-def create(save_file_name, password):
-  new_save_path = get_path(save_file_name)
-
-  newplayer = BASEPLAYER.copy()
-  newplayer["name"] = input("charecter name? ").title()
-
-  return new_save_path
