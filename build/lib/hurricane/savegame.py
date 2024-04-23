@@ -1,5 +1,7 @@
 import hurricane.data.htf as htf
+from hurricane.const import SAVE_FOLDER_NAME
 import json
+import copy
 import os
 
 BASEPLAYER = {
@@ -16,39 +18,56 @@ BASEPLAYER = {
   "recipes" : [] # a list of all the current crafting recipies
 }
 
-def getPath(username):
+class SaveMngr(object):
+  def __init__(self, save_file_path, password):
+    self.save_file_path = save_file_path
+    self.password = password
+    self.data = {}
+
+  def load(self):
+    with open(self.save_file_path, "rb") as file:
+      file_data = file.read()
+    
+    res = htf.decode(file_data[4:], self.password)
+
+    if res is None:
+      return False
+    else:
+      self.data = json.loads(res)
+      return True
+
+  def save(self):
+    save_file_data = htf.encode(json.dumps(self.data), self.password)
+
+    with open(self.save_file_path, "wb") as file:
+      file.write(b"HGSF")
+      file.write(save_file_data)
+
+  def reset(self):
+    self.data = copy.deepcopy(BASEPLAYER)
+    self.data["name"] = input("charecter name? ").title()
+    
+def get_all_saves():
   cur_path = os.getcwd()
-  save_path = os.path.join(cur_path, "saves")
+  print(cur_path)
+  save_folder_path = os.path.join(cur_path, SAVE_FOLDER_NAME)
+  if not os.path.exists(save_folder_path): # make sure directory exists
+    os.mkdir(save_folder_path)
+  
+  save_files = []
+  for file_path in os.listdir(save_folder_path):
+    full_file_path = os.path.join(save_folder_path, file_path)
+    if os.path.isfile(full_file_path):
+      with open(full_file_path, "rb") as file:
+        start_bytes = file.read(4)
+        if start_bytes == b'HGSF': # check to validate its a correct file
+          save_files.append((full_file_path, file_path))
+  
+  return save_files
+  
+def get_path(save_file_name):
+  cur_path = os.getcwd()
+  save_path = os.path.join(cur_path, SAVE_FOLDER_NAME)
   if not os.path.exists(save_path):
     os.mkdir(save_path)
-  return os.path.join(save_path, username)
-
-def load(username, password):
-  username = username.lower()
-  savepath = getPath(username)
-  if os.path.exists(savepath):
-    try:
-      return json.loads(htf.decode(savepath, password))
-    except TypeError:
-      return "PASS"
-  else:
-    return "FILE"
-
-def create(username, password, overwrite=False):
-  username = username.lower()
-  savepath = getPath(username)
-  if os.path.exists(savepath) and overwrite:
-    if input("this saved game already exists, overwrite? [yes/no] ") != "yes":
-      return "NA"
-
-  newplayer = BASEPLAYER.copy()
-
-  newplayer["name"] = input("charecter name? ").title()
-  
-  htf.encode(json.dumps(newplayer), password, savepath)
-
-  return newplayer
-
-def save(username, password, player):
-  username = username.lower()
-  htf.encode(json.dumps(player), password, getPath(username))
+  return os.path.join(save_path, save_file_name)

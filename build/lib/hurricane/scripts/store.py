@@ -1,6 +1,7 @@
 import hurricane.menu as menu
 import hurricane.utils as utils
-import hurricane.scripts as scripts
+
+from hurricane.const import EXIT_KEYS
 
 import copy
 import math
@@ -13,8 +14,8 @@ Store Dict:
 }
 """
 
-def storemenu(player, items, storedict):
-  utils.clear()
+def storemenu(storedict, game):
+  print(game.screen.clear, end="")
 
   done = False
 
@@ -22,20 +23,20 @@ def storemenu(player, items, storedict):
 
   while not done:
     maxinvlength = 9
-    for i in player["inventory"]:
-      nme = items[i]["name"]
+    for i in game.player["inventory"]:
+      nme = game.items[i]["name"]
       if len(nme) > maxinvlength:
         maxinvlength = len(nme)
     
     maxstolength = 5
     for i in storedict["items"]:
-      nme = items[i]["name"]
+      nme = game.items[i]["name"]
       if len(nme) > maxstolength:
         maxstolength = len(nme)
 
     maxbuylength = 7
     for i in buyback:
-      nme = items[i]["name"]
+      nme = game.items[i]["name"]
       if len(nme) > maxbuylength:
         maxbuylength = len(nme)
 
@@ -52,7 +53,7 @@ def storemenu(player, items, storedict):
     if maxbuylength % 2 == 0:
       maxbuylength += 1
 
-    printstring = "Stars: " + str(player["stars"]) + "\n\n"
+    printstring = "Stars: " + str(game.player["stars"]) + "\n\n"
 
     reglist_inv = []
     reglist_sto = []
@@ -64,32 +65,32 @@ def storemenu(player, items, storedict):
     
     printstring += "+-" + "-"*math.ceil(inventorytitleminus/2) + "inventory" + "-"*math.ceil(inventorytitleminus/2) + "-+-" + "-"*math.ceil(storetitleminus/2) + "store" + "-"*math.ceil(storetitleminus/2) + "-+-" + "-"*math.ceil(buybacktitleminus/2) + "buyback" + "-"*math.ceil(buybacktitleminus/2) + "-+" + "\n"
 
-    maxlength = max([len(storedict["items"]), len(player["inventory"]), len(buyback)])+1
+    maxlength = max([len(storedict["items"]), len(game.player["inventory"]), len(buyback)])+1
 
     printstring += "| " + " "*(maxinvlength) + " | " + " "*(maxstolength) + " | " + " "*(maxbuylength) + " |\n"
 
     for i in range(maxlength):
-      if i < len(player["inventory"]):
-        extraspaces = maxinvlength-len(items[player["inventory"][i]]["name"])
-        printstring += "| " + " "*(extraspaces) + "{inv$" + player["inventory"][i] + "$" + str(i) + "} |"
-        dislist_inv.append(items[player["inventory"][i]]["name"])
-        reglist_inv.append("inv$" + player["inventory"][i] + "$" + str(i))
+      if i < len(game.player["inventory"]):
+        extraspaces = maxinvlength-len(game.items[game.player["inventory"][i]]["name"])
+        printstring += "| " + " "*(extraspaces) + "{inv$" + game.player["inventory"][i] + "$" + str(i) + "} |"
+        dislist_inv.append(game.items[game.player["inventory"][i]]["name"])
+        reglist_inv.append("inv$" + game.player["inventory"][i] + "$" + str(i))
       else:
         printstring += "| " + " "*(maxinvlength) + " |"
 
 
       if i < len(storedict["items"]):
-        extraspaces = maxstolength-len(items[storedict["items"][i]]["name"])
+        extraspaces = maxstolength-len(game.items[storedict["items"][i]]["name"])
         printstring += " " + " "*(extraspaces) + "{sto$" + storedict["items"][i] + "$" + str(i) + "} |"
-        dislist_sto.append(items[storedict["items"][i]]["name"])
+        dislist_sto.append(game.items[storedict["items"][i]]["name"])
         reglist_sto.append("sto$" + storedict["items"][i] + "$" + str(i))
       else:
         printstring += " " + " "*(maxstolength) + " |"
 
       if i < len(buyback):
-        extraspaces = maxbuylength-len(items[buyback[i]]["name"])
+        extraspaces = maxbuylength-len(game.items[buyback[i]]["name"])
         printstring += " " + " "*(extraspaces) + "{buy$" + buyback[i] + "$" + str(i) + "} |"
-        dislist_buy.append(items[buyback[i]]["name"])
+        dislist_buy.append(game.items[buyback[i]]["name"])
         reglist_buy.append("buy$" + buyback[i] + "$" + str(i))
       else:
         printstring += " " + " "*(maxbuylength) + " |"
@@ -98,49 +99,47 @@ def storemenu(player, items, storedict):
 
     printstring += "+-" + "-"*(maxinvlength) + "-+-" + "-"*(maxstolength) + "-+-" + "-"*(maxbuylength) + "-+\n"
     
-    invMenu = menu.menu(printstring, [reglist_inv, reglist_sto, reglist_buy], [dislist_inv, dislist_sto, dislist_buy])
-    keypress = None
-
+    invMenu = menu.menu(printstring, game.screen, [reglist_inv, reglist_sto, reglist_buy], [dislist_inv, dislist_sto, dislist_buy])
     invMenu.find()
-    
-    while invMenu.value == None:
-      utils.clear()
-      print(invMenu.get())
 
-      keypress = utils.getch(": ")
-      
-      invMenu.registerkey(keypress, {"w":"up", "s":"down", "a":"left", "d":"right", "":"enter", "`":"enter"})
+    with game.screen.hidden_cursor():
+      while invMenu.value == None:
+        print(game.screen.clear + invMenu.get())
+  
+        keypress = game.screen.getchar()
+        
+        invMenu.registerkey(keypress)
 
     item = invMenu.value.split("$")
-    if keypress == "`":
+    if invMenu.prev_key in EXIT_KEYS:
       done = True
     else:
       if item[0] == "sto":
-        stars = items[item[1]]["value"] * storedict["pricemultiplier"]
-        print("Do you want to purchase a " + item[1] + " for " + str(stars) + " stars?")
-        if utils.prompt():
-          if stars > player["stars"]:
+        stars = game.items[item[1]]["value"] * storedict["pricemultiplier"]
+        pr_text = "Do you want to purchase a " + item[1] + " for " + str(stars) + " stars?"
+        if game.screen.prompt(pr_text):
+          if stars > game.player["stars"]:
             print("You do not have enough stars!")
           else:
-            player["stars"] -= stars
-            player["inventory"].append(item[1])
+            game.player["stars"] -= stars
+            game.player["inventory"].append(item[1])
             print("You purchased a " + item[1] + " for " + str(stars) + " stars")
       elif item[0] == "inv":
-        stars = items[item[1]]["value"]
-        print("Do you want to sell a " + item[1] + " for " + str(stars) + " stars?")
-        if utils.prompt():
+        stars = game.items[item[1]]["value"]
+        pr_text = "Do you want to sell a " + item[1] + " for " + str(stars) + " stars?"
+        if game.screen.prompt(pr_text):
           print("You sold a " + item[1] + " for " + str(stars) + " stars")
-          player["stars"] += stars
-          player["inventory"].remove(item[1])
+          game.player["stars"] += stars
+          game.player["inventory"].remove(item[1])
           buyback.append(item[1])
       elif item[0] == "buy":
-        stars = items[item[1]]["value"]
-        print("Do you want to purchase a " + item[1] + " for " + str(stars) + " stars?")
-        if utils.prompt():
-          if stars > player["stars"]:
+        stars = game.items[item[1]]["value"]
+        pr_text = "Do you want to purchase a " + item[1] + " for " + str(stars) + " stars?"
+        if game.screen.prompt(pr_text):
+          if stars > game.player["stars"]:
             print("You do not have enough stars!")
           else:
-            player["stars"] -= stars
-            player["inventory"].append(item[1])
+            game.player["stars"] -= stars
+            game.player["inventory"].append(item[1])
             buyback.remove(item[1])
             print("You purchased a " + item[1] + " for " + str(stars) + " stars")

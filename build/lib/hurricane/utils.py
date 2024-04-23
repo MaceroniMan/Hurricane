@@ -1,38 +1,11 @@
-import os, time, select, sys, random
-import hurricane.data.getch
-import hurricane.data.colors
-import hurricane.menu as menu
+import random
+
+from hurricane.const import WIDTH
 
 def wait():
   input("...")
 
-def prompt():
-  invMenu = menu.menu("{yes}   {no}", [["yes"], ["no"]], [["Yes"], ["No"]])
-
-  invMenu.find()
-  
-  while invMenu.value == None:
-    print("\r" + invMenu.get(), end="")
-
-    keypress = getch("")
-
-    invMenu.registerkey(keypress)
-
-  if invMenu.value == "yes":
-    return True
-  else:
-    return False
-
-def getch(p=">> "):
-  return hurricane.data.getch.getch(p)
-
-def clear():
-  if os.name == 'nt':
-    os.system('cls')
-  else:
-    os.system('clear')
-
-def wrapprint(text, charlength, checkchar="", wrapchar="\n"):
+def word_wrap(text, checkchar="", wrapchar="\n"):
   cnt = 0
   newouttext = ""
   
@@ -42,7 +15,7 @@ def wrapprint(text, charlength, checkchar="", wrapchar="\n"):
       newouttext += currchar
       cnt = 0
       
-    elif cnt == charlength:
+    elif cnt == WIDTH:
       if currchar == " ":
         newouttext += wrapchar
         cnt = 0
@@ -54,37 +27,14 @@ def wrapprint(text, charlength, checkchar="", wrapchar="\n"):
 
   return newouttext
 
-def replaceinstrings(text, player):
-  c = hurricane.data.colors.getcolors()
+def replace_in_strings(text, player, screen):
   text = text.replace("[@]", player["name"].title())
-  text = text.replace("R{", c["red"])
-  text = text.replace("B{", c["blue"])
-  text = text.replace("G{", c["green"])
-  text = text.replace("Y{", c["green"])
-  text = text.replace("}", c["reset"])
+  text = text.replace("R{", screen.red)
+  text = text.replace("B{", screen.blue)
+  text = text.replace("G{", screen.green)
+  text = text.replace("Y{", screen.yellow)
+  text = text.replace("}", screen.normal)
   return text
-
-def typing(words, player=None, speed=0.03, skip=True):
-  if player != None:
-    words = replaceinstrings(words, player)
-  inputs = 1
-  for char in words:
-    if skip:
-      i, o, e = select.select([sys.stdin], [], [], speed)
-      if (i):
-        if sys.stdin.readline().strip() == '':
-          print('\033[F'*inputs + words.replace('`', '\n'))
-          return True
-    else:
-      time.sleep(speed)
-    if char == '`':
-      input('')
-      inputs += 1
-    else:
-      sys.stdout.write(char)
-      sys.stdout.flush()
-  print("")
-  return False
 
 # returns a list of the npcs in the current room
 """
@@ -93,22 +43,22 @@ def typing(words, player=None, speed=0.03, skip=True):
 }
 """
 
-def npcs(player, npcs):
+def npcs(game):
   returnnpcs = {}
-  for npc in npcs:
+  for npc in game.npcs:
     done = False
-    for room in npcs[npc]:
+    for room in game.npcs[npc]:
       roomvalue = None
-      if room == player["location"]:
-        if isinstance(npcs[npc][room], str):
-          roomvalue = npcs[npc][room]
+      if room == game.player["location"]:
+        if isinstance(game.npcs[npc][room], str):
+          roomvalue = game.npcs[npc][room]
         else:
           roomvalue = room
       
       if roomvalue != None:
-        for condition in npcs[npc][roomvalue]["conditions"]:
-          if parsecondition(condition[0], player):
-            returnnpcs[npc] = [npcs[npc][roomvalue], condition[1]]
+        for condition in game.npcs[npc][roomvalue]["conditions"]:
+          if parsecondition(condition[0], game.player):
+            returnnpcs[npc] = [game.npcs[npc][roomvalue], condition[1]]
             done = True
             break
 
