@@ -30,7 +30,7 @@ def dialouge(npc, game):
     
     for person_index in range(len(dialouges)):
       print(game.screen.clear, end="")
-      print(utils.replaceinstrings(beforetext, game.player), end="", flush=True)
+      print(utils.replace_in_strings(beforetext, game.player, game.screen), end="", flush=True)
       
       person = dialouges[person_index]
       text = utils.word_wrap('  "' + person[1].replace("`", '"`  "') + '"', "`", "\n   ")
@@ -38,8 +38,10 @@ def dialouge(npc, game):
       doneskip = game.screen.typing(text, game.player)
       if doneskip:
         print(game.screen.clear, end="")
-        print(utils.replaceinstrings(beforetext, game.player), end="", flush=True)
-        print(person[0] + ": \n" + utils.replaceinstrings(text, game.player).replace("`", "\n"), end="", flush=True)
+        print(utils.replace_in_strings(beforetext, game.player, game.screen), end="", flush=True)
+        print(person[0] + ": \n"
+              + utils.replace_in_strings(text, game.player, game.screen).replace("`", "\n"),
+              end="", flush=True)
       
       beforetext += person[0] + ": \n" + text.replace("`", "\n") + "\n\n"
       if person_index+1 != len(dialouges):
@@ -78,8 +80,9 @@ def dialouge(npc, game):
           nicelist[0].append(option[1]["text"])
           optionlist[0].append(option[1]["goto"] + "$" + option[1]["text"])
 
-      beforetext = utils.replaceinstrings(beforetext, game.player).replace("`", "\n")
-      dialoueMenu = menu.menu(beforetext + optionstring, optionlist, nicelist)
+      beforetext = utils.replace_in_strings(beforetext, game.player, game.screen)
+      beforetext = beforetext.replace("`", "\n")
+      dialoueMenu = menu.menu(beforetext + optionstring, game.screen, optionlist, nicelist)
 
       with game.screen.hidden_cursor():
         while dialoueMenu.value == None:

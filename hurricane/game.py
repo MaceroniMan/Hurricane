@@ -2,8 +2,6 @@ import hurricane.menu as menu
 import hurricane.cmds as cmds
 import hurricane.utils as utils
 import hurricane.scripts as scripts
-import hurricane.savegame as savegame
-import hurricane.data.colors as colors
 
 from hurricane.const import EXIT_KEYS
 
@@ -19,8 +17,6 @@ class Game(object):
     self.world = world
     self.quests = quests
     self.containers = containers
-
-    self.c = colors.getcolors()
 
   def say(self, saylist):
     for i in saylist:
@@ -64,7 +60,7 @@ class Game(object):
         menustring += "Travel to '" + self.world[stablelocation]["name"] + "' "
         menustring += self.c["green"] + "(HERE)\n" + self.c["reset"]
     
-    stableMenu = menu.menu(menustring, [reglist], [dislist])
+    stableMenu = menu.menu(menustring, self.screen, [reglist], [dislist])
     keypress = None
   
     stableMenu.find()
@@ -96,13 +92,13 @@ class Game(object):
         # check if the quest is compleated (1 past length of quest list)
         if self.player["quests"][qid] == len(self.quests[qid]["points"]): 
           done_quests += utils.word_wrap(self.quests[qid]["name"] + ": " 
-                         + utils.replaceinstrings(self.quests[qid]["done"], self.player)
-                         + "\n\n")
+                  + utils.replace_in_strings(self.quests[qid]["done"], self.player, self.screen)
+                  + "\n\n")
         else:
           replaced_string = self.quests[qid]["points"][self.player["quests"][qid]]
           not_quests += utils.word_wrap(self.quests[qid]["name"] + ": " 
-                        + utils.replaceinstrings(replaced_string, self.player)
-                        + "\n\n")
+                  + utils.replace_in_strings(replaced_string, self.player, self.screen)
+                  + "\n\n")
     else:
       not_quests += "No quests yet, go explore!"
   
@@ -189,7 +185,7 @@ class Game(object):
         
       outtext += preface + self.items[grounditems[gitem]]["name"] + postface
 
-    newouttext = utils.word_wrap(utils.replaceinstrings(outtext, self.player))
+    newouttext = utils.word_wrap(utils.replace_in_strings(outtext, self.player, self.screen))
         
     print(newouttext + "\n")
   

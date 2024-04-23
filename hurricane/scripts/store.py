@@ -99,7 +99,7 @@ def storemenu(storedict, game):
 
     printstring += "+-" + "-"*(maxinvlength) + "-+-" + "-"*(maxstolength) + "-+-" + "-"*(maxbuylength) + "-+\n"
     
-    invMenu = menu.menu(printstring, [reglist_inv, reglist_sto, reglist_buy], [dislist_inv, dislist_sto, dislist_buy])
+    invMenu = menu.menu(printstring, game.screen, [reglist_inv, reglist_sto, reglist_buy], [dislist_inv, dislist_sto, dislist_buy])
     invMenu.find()
 
     with game.screen.hidden_cursor():

@@ -131,7 +131,7 @@ def inventory(game):
       dislist = [dislist_inv, dislist_gnd]
 
     
-    inv_menu = menu.menu(printstring, reglist, dislist)
+    inv_menu = menu.menu(printstring, game.screen, reglist, dislist)
     keypress = None
 
     inv_menu.find()
@@ -168,7 +168,7 @@ def inventory(game):
         else:
           reglist = [["inventory"], ["ground"]]
         
-        moveMenu = menu.menu(currentoutputmenu, reglist)
+        moveMenu = menu.menu(currentoutputmenu, game.screen, reglist)
 
         # autodefault menu to the current place
         findelement = None

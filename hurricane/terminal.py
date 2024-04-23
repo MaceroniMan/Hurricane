@@ -34,7 +34,7 @@ class Terminal(blessed.Terminal):
 
   def typing(self, words, player=None, speed=.03, skip=True):
     if player != None:
-      words = utils.replaceinstrings(words, player)
+      words = utils.replace_in_strings(words, player, self)
     newlines = 1
 
     for char in words:

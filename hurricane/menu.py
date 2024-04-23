@@ -1,4 +1,3 @@
-import hurricane.data.colors as colors
 import hurricane.utils as utils
 
 class layouts():
@@ -30,7 +29,7 @@ class layouts():
   }
 
 class menu(object):
-  def __init__(self, string, layout, dslayout=None):
+  def __init__(self, string, screen, layout, dslayout=None):
     self.menu_string = string
     self.menu_layout = layout
 
@@ -43,7 +42,7 @@ class menu(object):
     self.value = None
     self.niceValue = None
 
-    self.colors = colors.getcolors()
+    self.screen = screen
 
   def isin(self, x, y):
     try:
@@ -123,10 +122,10 @@ class menu(object):
     for x in range(len(self.display_layout)):
       column = self.display_layout[x]
       for y in range(len(column)):
-        value = utils.replaceinstrings(column[y], {"name":""})
+        value = utils.replace_in_strings(column[y], {"name":""}, self.screen)
         replacevalue = self.menu_layout[x][y]
         if self.cords[0] == x and self.cords[1] == y:
-          returnmenu = returnmenu.replace("{" + replacevalue + "}", self.colors["background"] + value + self.colors["reset"])
+          returnmenu = returnmenu.replace("{" + replacevalue + "}", self.screen.on_white + value + self.screen.normal)
         else:
           returnmenu = returnmenu.replace("{" + replacevalue + "}", value)
     

@@ -31,7 +31,7 @@ use wasd or arrow keys to navigate menus
 '{saves}' ...... load or create saved games
 '{tutorial}' ... start a short tutorial
 '{exit}' ....... exit the game"""
-    main_menu = menu.menu(menu_str, [["saves", "tutorial", "exit"]])
+    main_menu = menu.menu(menu_str, screen, [["saves", "tutorial", "exit"]])
     
     with screen.hidden_cursor():
       while main_menu.value == None:
@@ -51,7 +51,7 @@ use wasd or arrow keys to navigate menus
         cnt += 1
 
       rungame = False
-      load_save_menu = menu.menu(load_menu_str, 
+      load_save_menu = menu.menu(load_menu_str, screen,
           [["new"] + [x[0] for x in loaded_saves], ["back"]], 
           [["New Game"] + ["Load '" + x[1].title() + "'" for x in loaded_saves], ["Back"]])
 

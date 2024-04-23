@@ -1,5 +1,4 @@
-import os, time, select, sys, random, blessed
-import hurricane.data.colors
+import random
 
 from hurricane.const import WIDTH
 
@@ -28,37 +27,14 @@ def word_wrap(text, checkchar="", wrapchar="\n"):
 
   return newouttext
 
-def replaceinstrings(text, player):
-  c = hurricane.data.colors.getcolors()
+def replace_in_strings(text, player, screen):
   text = text.replace("[@]", player["name"].title())
-  text = text.replace("R{", c["red"])
-  text = text.replace("B{", c["blue"])
-  text = text.replace("G{", c["green"])
-  text = text.replace("Y{", c["green"])
-  text = text.replace("}", c["reset"])
+  text = text.replace("R{", screen.red)
+  text = text.replace("B{", screen.blue)
+  text = text.replace("G{", screen.green)
+  text = text.replace("Y{", screen.yellow)
+  text = text.replace("}", screen.normal)
   return text
-
-def old_typing(words, player=None, speed=0.03, skip=True):
-  if player != None:
-    words = replaceinstrings(words, player)
-  inputs = 1
-  for char in words:
-    if skip:
-      i, o, e = select.select([sys.stdin], [], [], speed)
-      if (i):
-        if sys.stdin.readline().strip() == '':
-          print('\033[F'*inputs + words.replace('`', '\n'))
-          return True
-    else:
-      time.sleep(speed)
-    if char == '`':
-      input('')
-      inputs += 1
-    else:
-      sys.stdout.write(char)
-      sys.stdout.flush()
-  print("")
-  return False
 
 # returns a list of the npcs in the current room
 """
