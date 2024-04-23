@@ -12,10 +12,11 @@ class Terminal(blessed.Terminal):
 
     invMenu.find()
 
-    while invMenu.value == None:
-      print("\r" + invMenu.get(), end="")
+    with self.hidden_cursor():
+      while invMenu.value == None:
+        print("\r" + invMenu.get(), end="")
 
-      invMenu.registerkey(self.getchar())
+        invMenu.registerkey(self.getchar())
 
     if invMenu.value == "yes":
       return True

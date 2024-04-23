@@ -15,7 +15,7 @@ def itemproperties(item, game):
 
 def inventory(game):
   # note: bag is the same as containers and chests
-  utils.clear()
+  print(game.screen.clear, end="")
 
   done = False
   
@@ -62,7 +62,7 @@ def inventory(game):
     inventorytitleminus = maxinvlength - 9
     groundtitleminus = maxgndlength - 6
     
-    utils.clear()
+    print(game.screen.clear, end="")
   
     printstring = "Stars: " + str(game.player["stars"]) + "\n\n"
     reglist_inv = []
@@ -137,15 +137,14 @@ def inventory(game):
     inv_menu.find()
 
     currentoutputmenu = ""
-    
-    while inv_menu.value == None:
-      utils.clear()
-      currentoutputmenu = inv_menu.get()
-      print(currentoutputmenu)
 
-      keypress = game.screen.getchar()
-      
-      inv_menu.registerkey(keypress)
+    with game.screen.hidden_cursor():
+      while inv_menu.value == None:
+        print(game.screen.clear + inv_menu.get())
+  
+        keypress = game.screen.getchar()
+        
+        inv_menu.registerkey(keypress)
 
     if inv_menu.value == False: # if the inventory is empty
       done = True
@@ -181,14 +180,14 @@ def inventory(game):
           findelement = "inventory"
         
         moveMenu.find(findelement)
-    
-        while moveMenu.value == None:
-          utils.clear()
-          print(moveMenu.get())
 
-          keypress = game.screen.getchar()
-      
-          moveMenu.registerkey(keypress)
+        with game.screen.hidden_cursor():
+          while moveMenu.value == None:
+            print(game.screen.clear + moveMenu.get())
+  
+            keypress = game.screen.getchar()
+        
+            moveMenu.registerkey(keypress)
         
         if moveMenu.value == "inventory":
           if item[0] == "gnd":

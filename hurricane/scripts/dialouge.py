@@ -9,7 +9,7 @@ def dialouge(npc, game):
   prev = None
 
   while True:
-    utils.clear()
+    print(game.screen.clear, end="")
     
     if not talklocation in dialougedict:
       raise ValueError(talklocation + " does not exist")
@@ -29,7 +29,7 @@ def dialouge(npc, game):
     prev = None
     
     for person_index in range(len(dialouges)):
-      utils.clear()
+      print(game.screen.clear, end="")
       print(utils.replaceinstrings(beforetext, game.player), end="", flush=True)
       
       person = dialouges[person_index]
@@ -37,7 +37,7 @@ def dialouge(npc, game):
       print(person[0] + ": ", end="\n", flush=True)
       doneskip = game.screen.typing(text, game.player)
       if doneskip:
-        utils.clear()
+        print(game.screen.clear, end="")
         print(utils.replaceinstrings(beforetext, game.player), end="", flush=True)
         print(person[0] + ": \n" + utils.replaceinstrings(text, game.player).replace("`", "\n"), end="", flush=True)
       
@@ -52,7 +52,7 @@ def dialouge(npc, game):
       break # end the dialouge menu
     elif doext != "NA":
       input() # add a extra pause in flow
-      utils.clear()
+      print(game.screen.clear, end="")
       if game.player["quests"][doext] == 0: # if the quest was just given
         game.screen.typing("Quest '" + game.quests[doext]["name"] + "' received", game.player, speed=.1)
       # if the quest was just compleated (1 past length of quest list)
@@ -80,14 +80,14 @@ def dialouge(npc, game):
 
       beforetext = utils.replaceinstrings(beforetext, game.player).replace("`", "\n")
       dialoueMenu = menu.menu(beforetext + optionstring, optionlist, nicelist)
-    
-      while dialoueMenu.value == None:
-        utils.clear()
-        print(dialoueMenu.get())
 
-        keypress = game.screen.getchar()
-
-        dialoueMenu.registerkey(keypress, menu.layouts.NOESC)
+      with game.screen.hidden_cursor():
+        while dialoueMenu.value == None:
+          print(game.screen.clear + dialoueMenu.get())
+  
+          keypress = game.screen.getchar()
+  
+          dialoueMenu.registerkey(keypress, menu.layouts.NOESC)
 
       talklocation = dialoueMenu.value.split("$")[0]
 

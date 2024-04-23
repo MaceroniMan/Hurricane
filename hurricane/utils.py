@@ -6,12 +6,6 @@ from hurricane.const import WIDTH
 def wait():
   input("...")
 
-def clear():
-  if os.name == 'nt':
-    os.system('cls')
-  else:
-    os.system('clear')
-
 def word_wrap(text, checkchar="", wrapchar="\n"):
   cnt = 0
   newouttext = ""

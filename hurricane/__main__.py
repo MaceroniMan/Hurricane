@@ -33,11 +33,11 @@ use wasd or arrow keys to navigate menus
 '{exit}' ....... exit the game"""
     main_menu = menu.menu(menu_str, [["saves", "tutorial", "exit"]])
     
-    while main_menu.value == None:
-      utils.clear()
-      print(main_menu.get())
-      keypress = screen.getchar()
-      main_menu.registerkey(keypress)
+    with screen.hidden_cursor():
+      while main_menu.value == None:
+        print(screen.clear, main_menu.get())
+        keypress = screen.getchar()
+        main_menu.registerkey(keypress)
     
     if main_menu.value == "saves":
       print("Loading Saves...")
@@ -54,12 +54,12 @@ use wasd or arrow keys to navigate menus
       load_save_menu = menu.menu(load_menu_str, 
           [["new"] + [x[0] for x in loaded_saves], ["back"]], 
           [["New Game"] + ["Load '" + x[1].title() + "'" for x in loaded_saves], ["Back"]])
-      
-      while load_save_menu.value == None:
-        utils.clear()
-        print(load_save_menu.get())
-        keypress = screen.getchar()
-        load_save_menu.registerkey(keypress)
+
+      with screen.hidden_cursor():
+        while load_save_menu.value == None:
+          print(screen.clear, load_save_menu.get())
+          keypress = screen.getchar()
+          load_save_menu.registerkey(keypress)
 
       if load_save_menu.prev_key in EXIT_KEYS:
         rungame = False

@@ -30,7 +30,7 @@ class Game(object):
         return
 
   def unlockchest(self):
-    utils.clear()
+    print(self.screen.clear, end="")
     if utils.parsecondition(self.cr["container"]["condition"], self.player):
       if not self.player["location"] in self.player["containers"]:
         self.say(self.cr["container"]["say"])
@@ -68,14 +68,14 @@ class Game(object):
     keypress = None
   
     stableMenu.find()
+
+    with self.screen.hide_cursor():
+      while stableMenu.value == None:
+        print(self.screen.clear + stableMenu.get())
     
-    while stableMenu.value == None:
-      utils.clear()
-      print(stableMenu.get())
-  
-      keypress = self.screen.getchar()
-      
-      stableMenu.registerkey(keypress)
+        keypress = self.screen.getchar()
+        
+        stableMenu.registerkey(keypress)
     
     place = stableMenu.value
     if stableMenu.prev_key in EXIT_KEYS:
@@ -83,7 +83,7 @@ class Game(object):
     elif place == False:
       return None # if nothing was selected
     else:
-      utils.clear()
+      print(self.screen.clear, end="")
       self.player["location"] = place
       self.screen.typing("Travling to " + self.world[place]["name"], self.player, speed=.3)
 
@@ -106,7 +106,7 @@ class Game(object):
     else:
       not_quests += "No quests yet, go explore!"
   
-    utils.clear()
+    print(self.screen.clear, end="")
     print(" Current Quests")
     print("================")
     print(not_quests, end="", flush=True)
@@ -120,7 +120,8 @@ class Game(object):
     utils.wait()
 
   def loop(self):
-    utils.clear()
+    print(self.screen.clear, end="")
+    # setup for the room
     self.cr = self.world[self.player["location"]]
 
     currentnpcs = utils.npcs(self)
@@ -129,6 +130,7 @@ class Game(object):
 
     self.savemngr.save()
 
+    # display any intro-text
     if "introtext" in self.cr:
       self.say(self.cr["introtext"])
 
@@ -141,8 +143,9 @@ class Game(object):
     if not self.player["location"] in self.player["world"]:
       self.player["world"][self.player["location"]] = []
     
-    utils.clear()
-    
+    print(self.screen.clear, end="")
+
+    # move on with gameplay
     print(" " + self.cr["name"])
     print("="*(len(self.cr["name"])+2) + "\n")
 

@@ -15,7 +15,7 @@ Store Dict:
 """
 
 def storemenu(storedict, game):
-  utils.clear()
+  print(game.screen.clear, end="")
 
   done = False
 
@@ -101,14 +101,14 @@ def storemenu(storedict, game):
     
     invMenu = menu.menu(printstring, [reglist_inv, reglist_sto, reglist_buy], [dislist_inv, dislist_sto, dislist_buy])
     invMenu.find()
-    
-    while invMenu.value == None:
-      utils.clear()
-      print(invMenu.get())
 
-      keypress = game.screen.getchar()
-      
-      invMenu.registerkey(keypress)
+    with game.screen.hidden_cursor():
+      while invMenu.value == None:
+        print(game.screen.clear + invMenu.get())
+  
+        keypress = game.screen.getchar()
+        
+        invMenu.registerkey(keypress)
 
     item = invMenu.value.split("$")
     if invMenu.prev_key in EXIT_KEYS:
