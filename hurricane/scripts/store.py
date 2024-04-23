@@ -1,6 +1,7 @@
 import hurricane.menu as menu
 import hurricane.utils as utils
-import hurricane.const as const
+
+from hurricane.const import EXIT_KEYS
 
 import copy
 import math
@@ -99,8 +100,6 @@ def storemenu(storedict, game):
     printstring += "+-" + "-"*(maxinvlength) + "-+-" + "-"*(maxstolength) + "-+-" + "-"*(maxbuylength) + "-+\n"
     
     invMenu = menu.menu(printstring, [reglist_inv, reglist_sto, reglist_buy], [dislist_inv, dislist_sto, dislist_buy])
-    keypress = None
-
     invMenu.find()
     
     while invMenu.value == None:
@@ -112,7 +111,7 @@ def storemenu(storedict, game):
       invMenu.registerkey(keypress)
 
     item = invMenu.value.split("$")
-    if keypress in const.EXIT_KEYS:
+    if invMenu.prev_key in EXIT_KEYS:
       done = True
     else:
       if item[0] == "sto":

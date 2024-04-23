@@ -1,6 +1,8 @@
 import os, time, select, sys, random, blessed
 import hurricane.data.colors
 
+from hurricane.const import WIDTH
+
 def wait():
   input("...")
 
@@ -10,7 +12,7 @@ def clear():
   else:
     os.system('clear')
 
-def wrapprint(text, charlength, checkchar="", wrapchar="\n"):
+def word_wrap(text, checkchar="", wrapchar="\n"):
   cnt = 0
   newouttext = ""
   
@@ -20,7 +22,7 @@ def wrapprint(text, charlength, checkchar="", wrapchar="\n"):
       newouttext += currchar
       cnt = 0
       
-    elif cnt == charlength:
+    elif cnt == WIDTH:
       if currchar == " ":
         newouttext += wrapchar
         cnt = 0

@@ -151,7 +151,7 @@ def inventory(game):
       done = True
     elif inv_menu.prev_key in EXIT_KEYS:
       done = True
-    elif inv_meni.prev_key in ENTER_KEYS:
+    elif inv_menu.prev_key in ENTER_KEYS:
       item = inv_menu.value.split("$")
       itemproperties(item[1], game)
     elif inv_menu.prev_key == " ":

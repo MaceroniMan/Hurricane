@@ -1,10 +1,11 @@
 import hurricane.menu as menu
 import hurricane.cmds as cmds
 import hurricane.utils as utils
-import hurricane.const as const
 import hurricane.scripts as scripts
 import hurricane.savegame as savegame
 import hurricane.data.colors as colors
+
+from hurricane.const import EXIT_KEYS
 
 import copy
 
@@ -12,7 +13,6 @@ class Game(object):
   def __init__(self, save_game_result, screen, items, npcs, world, quests, containers):
     self.savemngr = save_game_result
     self.player = self.savemngr.data
-    input(self.player)
     self.screen = screen
     self.items = items
     self.npcs = npcs
@@ -78,7 +78,7 @@ class Game(object):
       stableMenu.registerkey(keypress)
     
     place = stableMenu.value
-    if keypress == "`":
+    if stableMenu.prev_key in EXIT_KEYS:
       return None # if exited the menu
     elif place == False:
       return None # if nothing was selected
@@ -95,14 +95,14 @@ class Game(object):
       for qid in self.player["quests"]:
         # check if the quest is compleated (1 past length of quest list)
         if self.player["quests"][qid] == len(self.quests[qid]["points"]): 
-          done_quests += utils.wrapprint(self.quests[qid]["name"] + ": " 
+          done_quests += utils.word_wrap(self.quests[qid]["name"] + ": " 
                          + utils.replaceinstrings(self.quests[qid]["done"], self.player)
-                         + "\n\n", const.WIDTH)
+                         + "\n\n")
         else:
           replaced_string = self.quests[qid]["points"][self.player["quests"][qid]]
-          not_quests += utils.wrapprint(self.quests[qid]["name"] + ": " 
+          not_quests += utils.word_wrap(self.quests[qid]["name"] + ": " 
                         + utils.replaceinstrings(replaced_string, self.player)
-                        + "\n\n", const.WIDTH)
+                        + "\n\n")
     else:
       not_quests += "No quests yet, go explore!"
   
@@ -186,7 +186,7 @@ class Game(object):
         
       outtext += preface + self.items[grounditems[gitem]]["name"] + postface
 
-    newouttext = utils.wrapprint(utils.replaceinstrings(outtext, self.player), const.WIDTH)
+    newouttext = utils.word_wrap(utils.replaceinstrings(outtext, self.player))
         
     print(newouttext + "\n")
   

@@ -33,7 +33,7 @@ def dialouge(npc, game):
       print(utils.replaceinstrings(beforetext, game.player), end="", flush=True)
       
       person = dialouges[person_index]
-      text = utils.wrapprint('  "' + person[1].replace("`", '"`  "') + '"', const.WIDTH, "`", "\n   ")
+      text = utils.word_wrap('  "' + person[1].replace("`", '"`  "') + '"', "`", "\n   ")
       print(person[0] + ": ", end="\n", flush=True)
       doneskip = game.screen.typing(text, game.player)
       if doneskip:
@@ -87,7 +87,7 @@ def dialouge(npc, game):
 
         keypress = game.screen.getchar()
 
-        dialoueMenu.registerkey(keypress)
+        dialoueMenu.registerkey(keypress, menu.layouts.NOESC)
 
       talklocation = dialoueMenu.value.split("$")[0]
 

@@ -1,6 +1,34 @@
 import hurricane.data.colors as colors
 import hurricane.utils as utils
 
+class layouts():
+  STD = {
+    "w": "up",
+    "s": "down",
+    "a": "left",
+    "d": "right",
+    "KEY_UP": "up",
+    "KEY_DOWN": "down",
+    "KEY_LEFT": "left",
+    "KEY_RIGHT": "right",
+    "KEY_ENTER": "enter",
+    "KEY_ESCAPE": "enter",
+    "": "enter",
+    " ": "enter"
+  }
+
+  NOESC = {
+    "w": "up",
+    "s": "down",
+    "a": "left",
+    "d": "right",
+    "KEY_UP": "up",
+    "KEY_DOWN": "down",
+    "KEY_LEFT": "left",
+    "KEY_RIGHT": "right",
+    "KEY_ENTER": "enter"
+  }
+
 class menu(object):
   def __init__(self, string, layout, dslayout=None):
     self.menu_string = string
@@ -74,20 +102,8 @@ class menu(object):
 
   def registerkey(self, key, key_layout=None):
     if key_layout == None:
-      key_layout = {
-        "w": "up",
-        "s": "down",
-        "a": "left",
-        "d": "right",
-        "KEY_UP": "up",
-        "KEY_DOWN": "down",
-        "KEY_LEFT": "left",
-        "KEY_RIGHT": "right",
-        "KEY_ENTER": "enter",
-        "KEY_ESCAPE": "enter",
-        "": "enter",
-        " ": "enter"
-      }
+      key_layout = layouts.STD
+      
     if key in key_layout:
       if key_layout[key] == "up":
         self.up()

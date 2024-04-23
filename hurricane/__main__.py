@@ -1,4 +1,4 @@
-from hurricane.const import VERSION
+from hurricane.const import VERSION, EXIT_KEYS
 
 import hurricane.data.tutorial as tutorial
 import hurricane.terminal as terminal
@@ -60,7 +60,10 @@ use wasd or arrow keys to navigate menus
         print(load_save_menu.get())
         keypress = screen.getchar()
         load_save_menu.registerkey(keypress)
-        
+
+      if load_save_menu.prev_key in EXIT_KEYS:
+        rungame = False
+        continue
       if load_save_menu.value == "new":
         save_game_name = screen.cinput("new save game name: ")
         if save_game_name is None:
@@ -80,12 +83,11 @@ use wasd or arrow keys to navigate menus
           continue
 
         new_save_path = savegame.get_path(save_game_name)
-        save_game_manager = savegame.SaveMngr(new_file_path, password)
+        save_game_manager = savegame.SaveMngr(new_save_path, password)
         save_game_manager.reset()
         save_game_manager.save()
         rungame = True
         continue
-        
       elif load_save_menu.value == "back":
         rungame = False
         continue
